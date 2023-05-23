@@ -1,0 +1,30 @@
+version: '3'
+
+services:
+  redis:
+    container_name: redis-haemil
+    image: redis:latest
+    ports:
+      - "6379:6379"
+    restart: always
+    networks:
+      - db_network
+
+  spring-boot:
+    container_name: server-haemil
+    build:
+      context: .
+      dockerfile: Dockerfile-dev
+    restart: always
+    environment:
+      - TZ=Asia/Seoul
+    ports:
+      - "8080:8080"
+    depends_on:
+      - redis
+    networks:
+      - db_network
+
+networks:
+  db_network:
+    driver: bridge
