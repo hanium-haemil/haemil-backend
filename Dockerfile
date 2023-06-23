@@ -25,5 +25,5 @@ ENTRYPOINT [ \
    "-jar", \
    "-Djava.security.egd=file:/dev/./urandom", \
    "-Dsun.net.inetaddr.ttl=0", \
-   "<생성된 jar 파일명>.jar" \
+   "haemil-0.0.1-SNAPSHOT.jar" \
 ]
