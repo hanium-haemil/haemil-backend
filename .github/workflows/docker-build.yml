@@ -38,14 +38,15 @@ jobs:
       with:
         username: ${{ secrets.DOCKERHUB_USERNAME}}
         password: ${{ secrets.DOCKERHUB_PASSWORD}}
+      
+    # Docker 이미지 빌드 (개발용)
+    - name: Docker Image Build (Dev)
+      run: docker build -f Dockerfile-dev -t ${{ secrets.DOCKERHUB_USERNAME}}/${{ secrets.PROJECT_NAME }}:dev .
 
-    # Docker 이미지 빌드
-    - name: Docker Image Build
-      run: docker build -t ${{ secrets.DOCKERHUB_USERNAME}}/${{ secrets.PROJECT_NAME }} .
+    # DockerHub Push (개발용)
+    - name: DockerHub Push (Dev)
+      run: docker push ${{ secrets.DOCKERHUB_USERNAME }}/${{ secrets.PROJECT_NAME }}:dev
 
-    # DockerHub Push
-    - name: DockerHub Push
-      run: docker push ${{ secrets.DOCKERHUB_USERNAME }}/${{ secrets.PROJECT_NAME }}
 
     # EC2 인스턴스 접속 및 애플리케이션 실행
     - name: Application Run
