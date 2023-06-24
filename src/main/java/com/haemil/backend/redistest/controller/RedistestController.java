@@ -1,4 +1,4 @@
-package com.haemil.backend.controller;
+package com.haemil.backend.redistest.controller;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.http.HttpStatus;
