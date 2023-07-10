@@ -22,10 +22,10 @@ jobs:
         distribution: 'temurin'
         java-version: '11'
 
-    - name: Copy secret
-      env:
-          APPLICATION_SECRET: ${{ secrets.APPLICATION_SECRET }}
-      run: echo $APPLICATION_SECRET | base64 --decode > src/main/resources/application-secret.yml
+#     - name: Copy secret
+#       env:
+#           APPLICATION_SECRET: ${{ secrets.APPLICATION_SECRET }}
+#       run: echo $APPLICATION_SECRET | base64 --decode > src/main/resources/application-secret.yml
 
     # gradle을 통해 소스를 빌드.
     - name: Build with Gradle
