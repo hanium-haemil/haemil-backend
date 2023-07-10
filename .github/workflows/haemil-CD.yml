@@ -24,7 +24,8 @@ jobs:
 
     - name: Make application.properties
       run: |
-        echo "cd debug $pwd $ls"
+        current_dir=$(pwd)
+        echo "Current directory: $current_dir"
         cd ./haemil-backend/src/main/resources
         touch ./application.yml
         echo "${{ secrets.PROPERTIES_YML }}" > ./application.yml
