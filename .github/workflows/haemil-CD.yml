@@ -24,7 +24,7 @@ jobs:
 
     - name: Make application.properties
       run: |
-        cd ./src/main/resources
+        cd ./haemil-backend/src/main/resources
         touch ./application.yml
         echo "${{ secrets.PROPERTIES_YML }}" > ./application.yml
       shell: bash
