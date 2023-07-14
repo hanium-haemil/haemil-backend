@@ -49,7 +49,7 @@ jobs:
       id: deploy
       with:
         host: ${{ secrets.HOST }}
-        username: ubuntu
+        username: ${{ secrets.USERNAME }}
         key: ${{ secrets.KEY }}
         envs: GITHUB_SHA
         script: |
