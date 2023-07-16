@@ -48,9 +48,10 @@ jobs:
       uses: appleboy/ssh-action@master
       id: deploy
       with:
-        host: ${{ secrets.HOST }}
-        username: ${{ secrets.USERNAME }}
-        key: ${{ secrets.KEY }}
+        host: ${{ secrets.EC2_HOST }}
+        username: ${{ secrets.EC2_USERNAME }}
+        key: ${{ secrets.EC2_KEY }}
+        envs: GITHUB_SHA
         script: |
           sudo docker rm -f $(docker ps -qa)
           sudo docker pull ${{ secrets.DOCKER_REPO }}/directors-dev
