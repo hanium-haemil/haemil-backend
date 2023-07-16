@@ -10,7 +10,7 @@ import com.haemil.backend.global.config.BaseException;
 import com.haemil.backend.global.config.ResponseStatus;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.context.annotation.Bean;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
@@ -26,12 +26,14 @@ import java.util.List;
 public class AlertService {
     private final RestTemplate restTemplate;
 
+    @Value("${api.secret-key}")
+    private String serviceKey;
+    private String responseBody;
+
     public String getAlertInfo(GetApiDto reqGetApiDto) throws BaseException {
-        String responseBody;
+
         try {
-            //        GetApiDto dto = new GetApiDto();
             String apiUrl = reqGetApiDto.getApiUrl();
-            String serviceKey = reqGetApiDto.getServiceKey();
             String type = reqGetApiDto.getType();
             String pageNo = reqGetApiDto.getPageNo();
             String numOfRows = reqGetApiDto.getNumOfRows();
@@ -44,14 +46,10 @@ public class AlertService {
             urlBuilder.append("&" + URLEncoder.encode("pageNo", "UTF-8") + "=" + URLEncoder.encode(pageNo, "UTF-8"));
             urlBuilder.append("&" + URLEncoder.encode("numOfRows", "UTF-8") + "=" + URLEncoder.encode(numOfRows, "UTF-8"));
 
-            // Send GET request to external API
             ResponseEntity<String> response = restTemplate.getForEntity(urlBuilder.toString(), String.class);
 
-            // Process the response as needed
             responseBody = response.getBody();
 
-            log.debug("urlBuilder: " + urlBuilder);
-            log.debug("responseBody: " + responseBody);
         } catch (UnsupportedEncodingException e) { // 에러가 발생했을 때 예외 status 명시
             log.debug("UnsupportedEncodingException 발생 ");
             throw new BaseException(ResponseStatus.UNSUPPORTED_ENCODING);
@@ -67,13 +65,9 @@ public class AlertService {
             ObjectMapper objectMapper = new ObjectMapper();
 
             JsonNode jsonNode = objectMapper.readTree(responseBody);
-            log.debug("jsonNode : " + jsonNode);
             JsonNode firstElement = jsonNode.get("DisasterMsg").get(1);
-            log.debug("firstElement : " + firstElement);
             JsonNode rowNode = firstElement.get("row");
-            log.debug("rowNode : " + rowNode);
             JsonNode nextNode = rowNode.get(0);
-            log.debug("nextNode : " + nextNode);
 
             String msg = nextNode.get("msg").asText();
             String location = nextNode.get("location_name").asText(); // 예시로 location_name을 사용하여 location 값을 가져옴

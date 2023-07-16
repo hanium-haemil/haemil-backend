@@ -34,7 +34,6 @@ public class AlertController {
 
         try {
             String jsonString = alertService.getAlertInfo(getApiDto);
-            // SERVICE ERROR 일때 무한로딩. error handling 필요.
             log.debug("jsonString: "+jsonString);
             alertService.isJson(jsonString);
 
