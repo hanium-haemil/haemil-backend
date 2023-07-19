@@ -9,6 +9,7 @@ import com.haemil.backend.weather.dto.AirDto;
 import com.haemil.backend.weather.dto.AirInfoDto;
 import com.haemil.backend.weather.entity.AirApi;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -24,12 +25,13 @@ import java.util.List;
 @RequiredArgsConstructor
 public class AirService {
     private final RestTemplate restTemplate;
+    @Value("${api.hj-secret-key}")
+    String serviceKey;
 
     public String getAirInfo(AirDto airdto) throws BaseException {
         String responseBody;
         try {
             String apiUrl = airdto.getApiUrl();
-            String serviceKey = airdto.getServiceKey();
             String returnType = airdto.getReturnType();
             String numOfRows = airdto.getNumOfRows();
             String pageNo = airdto.getPageNo();

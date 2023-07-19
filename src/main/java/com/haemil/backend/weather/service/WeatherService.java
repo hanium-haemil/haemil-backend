@@ -10,6 +10,7 @@ import com.haemil.backend.weather.dto.WeatherInfoDto;
 import com.haemil.backend.weather.entity.WeatherApi;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
@@ -25,11 +26,13 @@ import java.util.List;
 public class WeatherService {
     private final RestTemplate restTemplate;
 
+    @Value("${api.hj-secret-key}")
+    private String serviceKey;
+
     public String getWeatherInfo(WeatherDto weatherDto) throws BaseException {
         String responseBody;
         try {
             String apiUrl = weatherDto.getApiUrl();
-            String serviceKey = weatherDto.getServiceKey();
             String type = weatherDto.getDataType();
             String numOfRows = weatherDto.getNumOfRows();
             String pageNo = weatherDto.getPageNo();

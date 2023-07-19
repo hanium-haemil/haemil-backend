@@ -10,7 +10,6 @@ import java.time.format.DateTimeFormatter;
 @Component
 public class WeatherDto {
     private final String apiUrl = "http://apis.data.go.kr/1360000/VilageFcstInfoService_2.0/getVilageFcst"; // 단기예보
-    private final String serviceKey = "Zj0sLbMrwO6sNx5VVTO1ExwsGaiiab7foNhOtvUgNrl/S2AeCLt1o2B4EzZEaYBg/OsM0vkFjuhttPUq3vbq6A==";
     private final String numOfRows = "10";
     private final String pageNo = "1";
     private final String dataType ="json";
