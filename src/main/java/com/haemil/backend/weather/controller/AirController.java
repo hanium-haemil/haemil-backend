@@ -25,7 +25,7 @@ public class AirController {
     public ResponseEntity<BaseResponse> sendGetRequest() {
         try {
             String jsonString = airService.getAirInfo(airdto);
-            log.debug("jsonString : " + jsonString);
+            log.debug("Air - jsonString : " + jsonString);
             airService.isJson(jsonString);
 
             List<AirInfoDto> infoList = airService.ParsingJson(jsonString);

@@ -9,6 +9,7 @@ import com.haemil.backend.weather.dto.AirDto;
 import com.haemil.backend.weather.dto.AirInfoDto;
 import com.haemil.backend.weather.entity.AirApi;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -24,20 +25,22 @@ import java.util.List;
 @RequiredArgsConstructor
 public class AirService {
     private final RestTemplate restTemplate;
+    private final StationService stationService;
+    @Value("${api.hj-secret-key}")
+    String serviceKey;
 
-    public String getAirInfo(AirDto airdto) throws BaseException {
+    public String getAirInfo(AirDto airDto) throws BaseException {
         String responseBody;
         try {
-            String apiUrl = airdto.getApiUrl();
-            String serviceKey = airdto.getServiceKey();
-            String returnType = airdto.getReturnType();
-            String numOfRows = airdto.getNumOfRows();
-            String pageNo = airdto.getPageNo();
-            String stationName = airdto.getStationName();
-            String dataTerm = airdto.getDataTerm();
-            String ver = airdto.getVer();
+            String apiUrl = airDto.getApiUrl();
+            String returnType = airDto.getReturnType();
+            String numOfRows = airDto.getNumOfRows();
+            String pageNo = airDto.getPageNo();
+            String stationName = stationService.getStationName(stationService.getStationInfo());
+            String dataTerm = airDto.getDataTerm();
+            String ver = airDto.getVer();
 
-            log.debug("serviceKey: " + serviceKey);
+            log.debug("stationName: " + stationName);
 
             StringBuilder urlBuilder = new StringBuilder(apiUrl);
             urlBuilder.append("?"+ URLEncoder.encode("serviceKey", "UTF-8")+"="+serviceKey);
@@ -52,8 +55,8 @@ public class AirService {
 
             responseBody = response.getBody();
 
-            log.info("urlBuilder: " + urlBuilder);
-            log.info("responseBody: " + responseBody);
+            log.info("Air _ urlBuilder: " + urlBuilder);
+            log.info("Air _ responseBody: " + responseBody);
         } catch (UnsupportedEncodingException e) {
             log.debug("UnsupportedEncodingException 발생 ");
             throw new BaseException(ResponseStatus.UNSUPPORTED_ENCODING);
@@ -71,7 +74,6 @@ public class AirService {
             log.info("jsonNode = {}", jsonNode);
             JsonNode itemsNode = jsonNode.get("response").get("body").get("items");
             log.info("itemsNode = {}", itemsNode);
-            JsonNode itemNode = itemsNode.get("item");
 
             if (itemsNode.isArray()) {
                 for (JsonNode node : itemsNode) {
@@ -105,19 +107,18 @@ public class AirService {
                 airInfoDtoList.add(airInfoDto);
             }
             log.debug("airInfoDtoList:" + airInfoDtoList);
-
+            return airInfoDtoList;
         } catch (JsonProcessingException e) {
             throw new BaseException(ResponseStatus.CANNOT_CONVERT_JSON);
         }
-        return airInfoDtoList;
     }
 
-    public boolean isJson(String xmlString) throws BaseException {
-        boolean isJson = xmlString.startsWith("{") && xmlString.endsWith("}");
+    public boolean isJson(String jsonString) throws BaseException {
+        boolean isJson = jsonString.startsWith("{") && jsonString.endsWith("}");
 
         if (!isJson) {
             throw new BaseException(ResponseStatus.INVALID_XML_FORMAT);
-        }else {
+        } else {
             return true;
         }
     }
