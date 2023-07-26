@@ -21,21 +21,26 @@ public enum ResponseStatus {
     INTERNAL_SERVER_ERROR(500,HttpStatus.Series.SERVER_ERROR, "Internal Server Error"),
     BAD_GATEWAY(502,HttpStatus.Series.SERVER_ERROR, "Bad Gateway"),
     GATEWAY_TIMEOUT(504,HttpStatus.Series.SERVER_ERROR, "Gateway Timeout"),
-    HTTP_VERSION_NOT_SUPPORTED(505,HttpStatus.Series.SERVER_ERROR, "HTTP Version not supported");
+    HTTP_VERSION_NOT_SUPPORTED(505,HttpStatus.Series.SERVER_ERROR, "HTTP Version not supported"),
+
+    // --- 55x Custom Error --
+    CANNOT_CONVERT_JSON(false, 550, "JSON 문자열로 변경할 수 없습니다."),
+    UNSUPPORTED_ENCODING(false, 551, "지원되지 않는 인코딩 형식입니다."),
+    INVALID_XML_FORMAT(false, 552, "SERVICE ERROR가 발생했습니다.");
 
     private boolean success;
-    private int status;
+    private int code;
     private String message;
 
     private ResponseStatus(boolean success, int code, String message) {
         this.success = success;
-        this.status = status;
+        this.code = code;
         this.message = message;
     }
 
     private ResponseStatus(int code, HttpStatus.Series series, String message) {
         this.success = false;
-        this.status = status;
+        this.code = code;
         this.message = message;
     }
 }
