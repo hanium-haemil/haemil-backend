@@ -10,20 +10,20 @@ services:
     networks:
       - db_network
 
-/*#  spring-boot:
-#    container_name: server-haemil
-#    build:
-#      context: .
-#      dockerfile: Dockerfile-dev
-#    restart: always
-#    environment:
-#      - TZ=Asia/Seoul
-#    ports:
-#      - "8080:8080"
-#    depends_on:
-#      - redis
-#    networks:
-#      - db_network*/
+  spring-boot:
+    container_name: server-haemil
+    build:
+      context: .
+      dockerfile: Dockerfile-dev
+    restart: always
+    environment:
+      - TZ=Asia/Seoul
+    ports:
+      - "8080:8080"
+    depends_on:
+      - redis
+    networks:
+      - db_network
 
 networks:
   db_network:
