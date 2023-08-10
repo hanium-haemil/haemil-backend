@@ -20,8 +20,8 @@ import java.net.*;
 @Service
 public class MapService {
 
-    @Value("${api.naver-client-id}")
-    String clientId;
+    @Value("${api.kakao-rest-api-key}")
+    String restApiKey;
 
     @Value("${api.naver-client-secret}")
     String clientSecret;
@@ -36,16 +36,15 @@ public class MapService {
             log.debug("address = {}", address);
 
             // Geocoding 개요에 나와있는 API URL 입력.
-            String apiURL = "https://naveropenapi.apigw.ntruss.com/map-geocode/v2/geocode?query=" + addr;
+            String apiURL = "https://dapi.kakao.com/v2/local/search/keyword.json?page=1&size=1&sort=accuracy&query="+addr;
 
             URL url = new URL(apiURL);
             log.debug("url = {}", url);
             HttpURLConnection con = (HttpURLConnection) url.openConnection();
             con.setRequestMethod("GET");
 
-            // Geocoding 개요에 나와있는 요청 헤더 입력.
-            con.setRequestProperty("X-NCP-APIGW-API-KEY-ID", clientId);
-            con.setRequestProperty("X-NCP-APIGW-API-KEY", clientSecret);
+            // 헤더
+            con.setRequestProperty("Authorization", "KakaoAK " + restApiKey);
 
             // 요청 결과 확인. 정상 호출인 경우 200
             int responseCode = con.getResponseCode();
@@ -72,20 +71,16 @@ public class MapService {
 
             JsonNode jsonNode = objectMapper.readTree(response.toString());
             log.debug("jsonNode = {}", jsonNode);
-            JsonNode addressesNode = jsonNode.get("addresses");
-            log.debug("addressesNode = {}", addressesNode);
+            JsonNode itemsNode = jsonNode.get("documents");
+            log.debug("documents = {}", itemsNode);
 
-            if (addressesNode != null && addressesNode.isArray()) {
-                for (JsonNode addressNode : addressesNode) {
-                    String roadAddress = getParsedUrl(addressNode.get("roadAddress").asText());
+            if (itemsNode != null && itemsNode.isArray() && itemsNode.size() > 0) {
+                JsonNode firstItem = itemsNode.get(0);
+                String mapx = firstItem.get("y").asText();
+                String mapy = firstItem.get("x").asText();
 
-                    String jibunAddress = addressNode.get("jibunAddress").asText();
-                    String latitude = addressNode.get("y").asText();
-                    String longitude = addressNode.get("x").asText();
-
-                    log.debug("latitude = {} and longitude = {}", latitude, longitude);
-                    resultUrl = "nmap://route/public?dlat=" + latitude + "&dlng=" + longitude + "&dname=" + roadAddress;
-                }
+                log.debug("mapx = {} and mapy = {}", mapx, mapy);
+                resultUrl = "nmap://route/public?dlat=" + mapx + "&dlng=" + mapy + "&dname=" + addr;
             }
         } catch (UnsupportedEncodingException e) { // 에러가 발생했을 때 예외 status 명시
             log.debug("UnKnownAddrException 발생 ");
