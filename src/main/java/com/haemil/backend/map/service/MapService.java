@@ -23,9 +23,6 @@ public class MapService {
     @Value("${api.kakao-rest-api-key}")
     String restApiKey;
 
-    @Value("${api.naver-client-secret}")
-    String clientSecret;
-
     public String getMapUrl(String reqLocation) throws BaseException {
 
         String resultUrl = null;
