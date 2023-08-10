@@ -1,5 +1,6 @@
 package com.haemil.backend.user.entity;
 
+import com.haemil.backend.global.security.oauth.OAuthProvider;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -25,6 +26,9 @@ public class User {
     @Column(nullable = false, length = 20)
     private String nickname;
 
+    // 임시 credential
+    private String password;
+
     //role 추가.
     @Column(nullable = false)
     @Enumerated(value = EnumType.STRING) //저장될때는 string으로 저장되도록
@@ -44,9 +48,9 @@ public class User {
         private final String key;
     }
 
-    public enum OAuthProvider {
-        KAKAO, GOOGLE
-    }
+//    public enum OAuthProvider {
+//        KAKAO, GOOGLE
+//    }
 
     @Builder
     public User(String email, String nickname, String profileImageUrl, Role role, OAuthProvider oAuthProvider) {
