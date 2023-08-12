@@ -32,11 +32,10 @@ jobs:
       with:
         distribution: 'temurin'
         java-version: '11'
-
     - name: Copy application-secret
       env:
-          APPLICATION_SECRET: ${{ secrets.APPLICATION_SECRET }}
-      run: echo $APPLICATION_SECRET | base64 --decode > src/main/resources/application-secret.yml
+        APPLICATION_SECRET: ${{ secrets.APPLICATION_SECRET }}
+      run: echo "$APPLICATION_SECRET" > src/main/resources/application-secret.yml
 
     # (3) Gradle build (Test 제외)
     - name: Build with Gradle
