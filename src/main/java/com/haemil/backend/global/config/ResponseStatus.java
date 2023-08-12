@@ -26,6 +26,7 @@ public enum ResponseStatus {
     // --- 55x Custom Error --
     CANNOT_CONVERT_JSON(false, 550, "JSON 문자열로 변경할 수 없습니다."),
     UNSUPPORTED_ENCODING(false, 551, "지원되지 않는 인코딩 형식입니다."),
+    URI_SYNT(false, 551, "URISyntaxException이 발생했습니다."),
     INVALID_XML_FORMAT(false, 552, "SERVICE ERROR가 발생했습니다."),
     UNKNOWN_ADDR(false, 553, "알 수 없는 주소를 입력받았습니다.");
 

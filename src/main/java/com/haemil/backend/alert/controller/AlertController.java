@@ -34,11 +34,11 @@ public class AlertController {
 
         try {
             String jsonString = alertService.getAlertInfo(getApiDto);
-            log.debug("jsonString: "+jsonString);
+//            log.debug("jsonString: "+jsonString);
             alertService.isJson(jsonString);
 
-            List<ApiInfoDto> infoList  = alertService.ParsingJson(jsonString);
-            return new BaseResponse<>(infoList).convert();
+            ApiInfoDto apiInfoDto = alertService.ParsingJson(jsonString);
+            return new BaseResponse<>(apiInfoDto).convert();
         } catch (BaseException e){
             // 실패시 custom한 status로 code 헤더 설정, body로 메세지 반환
             return new BaseResponse<>(e.getStatus()).convert();
