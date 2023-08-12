@@ -34,10 +34,6 @@ dependencies {
 	implementation 'mysql:mysql-connector-java:8.0.33'
 }
 
-tasks.named('test') {
-	useJUnitPlatform()
-}
-
 jar {
 	enabled = false
 }
