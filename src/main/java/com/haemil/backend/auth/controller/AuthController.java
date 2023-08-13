@@ -57,7 +57,6 @@ public class AuthController {
             // RT 저장
             ResponseCookie responseCookie = ResponseCookie.from("refresh-token", reissuedTokenDto.getRefreshToken())
                     .maxAge(CookiePeriod)
-//                    .domain(".photohere.co.kr")
                     .path("/")
                     .sameSite("None")
                     .httpOnly(true)
