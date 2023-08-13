@@ -45,10 +45,10 @@ public class AuthService {
     private long CookiePeriod;
 
     // 로그인: 인증 정보 저장 및 비어 토큰 발급
-    public RespLoginDto login(OAuthLoginParams params) throws BaseException {
+    public RespLoginDto login(OAuthLoginParams params, Boolean isGuardian) throws BaseException {
 
         OAuthInfoResponse oAuthInfoResponse = requestOAuthInfoService.request(params);
-        Long userId = findOrCreateUser(oAuthInfoResponse);
+        Long userId = findOrCreateUser(oAuthInfoResponse, isGuardian);
         AuthTokens token = createToken(userId, oAuthInfoResponse);
 
         User user = userRepository.findById(userId).orElseThrow(() -> new BaseException(ResponseStatus.NO_USER));
@@ -218,19 +218,20 @@ public class AuthService {
         return httpCookie;
     }
 
-    private Long findOrCreateUser(OAuthInfoResponse oAuthInfoResponse) {
+    private Long findOrCreateUser(OAuthInfoResponse oAuthInfoResponse, Boolean isGuardian) {
         return userRepository.findByEmail(oAuthInfoResponse.getEmail())
                 .map(User::getId)
-                .orElseGet(() -> newUser(oAuthInfoResponse));
+                .orElseGet(() -> newUser(oAuthInfoResponse, isGuardian));
     }
 
-    private Long newUser(OAuthInfoResponse oAuthInfoResponse) {
+    private Long newUser(OAuthInfoResponse oAuthInfoResponse, Boolean isGuardian) {
         User user = User.builder()
                 .email(oAuthInfoResponse.getEmail())
                 .nickname(oAuthInfoResponse.getNickname())
                 .profileImageUrl(oAuthInfoResponse.getProfileImageUrl())
                 .oAuthProvider(oAuthInfoResponse.getOAuthProvider())
                 .role(User.Role.USER) // 추가.
+                .guardian(isGuardian)
                 .build();
 
         return userRepository.save(user).getId();

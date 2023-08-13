@@ -37,28 +37,30 @@ public class User {
     // 프로필 이미지 url 추가.
     @Column
     private String profileImageUrl;
-
     private OAuthProvider oAuthProvider;
 
     @Getter
     @RequiredArgsConstructor
     public enum Role {
         USER("ROLE_USER"), ADMIN("ROLE_ADMIN");
-
         private final String key;
     }
+
+    // 보호자 여부
+    public Boolean guardian;
 
 //    public enum OAuthProvider {
 //        KAKAO, GOOGLE
 //    }
 
     @Builder
-    public User(String email, String nickname, String profileImageUrl, Role role, OAuthProvider oAuthProvider) {
+    public User(String email, String nickname, String profileImageUrl, Role role, OAuthProvider oAuthProvider, Boolean guardian) {
         this.email = email;
         this.nickname = nickname;
         this.profileImageUrl = profileImageUrl;
         this.role = role;
         this.oAuthProvider = oAuthProvider;
+        this.guardian = guardian;
     }
 
     public User update(String name, String picture){
