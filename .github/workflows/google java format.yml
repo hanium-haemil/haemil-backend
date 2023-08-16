@@ -14,6 +14,10 @@ jobs:
           echo "BRANCH_NAME=$BRANCH_NAME" >> $GITHUB_ENV
           echo "GitHub Ref: ${{ github.ref }}"
           echo "Branch Name: $BRANCH_NAME"
+          echo "check.... "
+          ls -al
+          echo "check.... "
+          pwd
           FILE_PATTERN="./**/${BRANCH_NAME}/*"
           echo "FILE_PATTERN Name: $FILE_PATTERN"
           if [[ -d "$FILE_PATTERN" ]]; then
