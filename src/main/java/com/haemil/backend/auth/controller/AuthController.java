@@ -89,16 +89,6 @@ public class AuthController {
         }
     }
 
-    // temp mapping - find cookie
-
-    @RequestMapping("/getCookie1")
-    public ResponseEntity<BaseResponse<String>> getCookie1(@CookieValue String useremail, @CookieValue("useremail") String umail) {
-        System.out.println(umail);
-        return ResponseEntity.ok().body(new BaseResponse<>("test."));
-    }
-
-    // --
-
     // 로그아웃
     @PostMapping("/logout")
     public ResponseEntity<?> logout(@RequestHeader("Authorization") String requestAccessToken) {
