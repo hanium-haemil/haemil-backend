@@ -13,17 +13,22 @@ jobs:
           echo "GitHub Workspace: $GITHUB_WORKSPACE"
           echo "GitHub Ref: ${{ github.ref }}"
           echo "Branch Name: $BRANCH_NAME"
-          echo "Setting FILE_PATTERN variable"
-          echo "FILE_PATTERN=${GITHUB_WORKSPACE}/src/main/java/com/haemil/backend/${BRANCH_NAME}/*" >> $GITHUB_ENV
-      
+          FILE_PATTERN="${GITHUB_WORKSPACE}/src/main/java/com/haemil/backend/${BRANCH_NAME}/*"
+          if [[ -d "$FILE_PATTERN" ]]; then
+            echo "Setting FILE_PATTERN variable"
+            echo "FILE_PATTERN=$FILE_PATTERN" >> $GITHUB_ENV
+          else
+            echo "Directory does not exist for the given branch."
+          fi
+
       - name: Check formatting
+        if: env.FILE_PATTERN != ''
         uses: axel-op/googlejavaformat-action@v3
         with:
           args: "--replace"
           github-token: ${{ secrets.GITHUB_TOKEN }}
           skip-commit: true
           files: "${{ env.FILE_PATTERN }}"
-          
+
       - name: Print diffs
         run: git --no-pager diff --exit-code
-
