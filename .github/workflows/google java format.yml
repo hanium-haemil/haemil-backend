@@ -9,8 +9,8 @@ jobs:
 
       - name: Print Selected Files
         run: |
-          BRANCH_NAME=$(echo ${{ github.ref }} | sed 's#refs/heads/##')
-          echo "GitHub Workspace: $GITHUB_WORKSPACE"
+          BRANCH_NAME=$(echo "${{ github.ref }}" | awk -F'/' '{print $NF}')
+          echo "BRANCH_NAME=$BRANCH_NAME" >> $GITHUB_ENV
           echo "GitHub Ref: ${{ github.ref }}"
           echo "Branch Name: $BRANCH_NAME"
           FILE_PATTERN="${GITHUB_WORKSPACE}/src/main/java/com/haemil/backend/${BRANCH_NAME}/*"
