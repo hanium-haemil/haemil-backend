@@ -5,9 +5,12 @@ jobs:
   formatting:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
-      - uses: axel-op/googlejavaformat-action@v3
+      - uses: actions/checkout@v3
+      - name: Check formatting
+        id: format-check
+        uses: axel-op/googlejavaformat-action@v3
         with:
-          args: "--fix-imports-only"
-          commit-message: "format: Google Java Format"
-          github-token: ${{ secrets.GH_TOKEN }}
+          args: "--set-exit-if-changed --fix-imports-only"
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+      - name: Print diffs
+        run: git --no-pager diff --exit-code
