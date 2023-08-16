@@ -18,7 +18,8 @@ jobs:
           ls -al
           echo "check.... "
           pwd
-          FILE_PATTERN="./**/${BRANCH_NAME}/*"
+          cd src/main/java/com/haemil/backend/auth
+          FILE_PATTERN="/home/runner/work/haemil-backend/haemil-backend/src/main/java/com/haemil/backend/${BRANCH_NAME}/*"
           echo "FILE_PATTERN Name: $FILE_PATTERN"
           if [[ -d "$FILE_PATTERN" ]]; then
             echo "Setting FILE_PATTERN variable"
