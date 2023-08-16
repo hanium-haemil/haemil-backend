@@ -14,6 +14,7 @@ jobs:
           echo "GitHub Ref: ${{ github.ref }}"
           echo "Branch Name: $BRANCH_NAME"
           FILE_PATTERN="${GITHUB_WORKSPACE}/src/main/java/com/haemil/backend/${BRANCH_NAME}/*"
+          echo "Branch Name: $FILE_PATTERN"
           if [[ -d "$FILE_PATTERN" ]]; then
             echo "Setting FILE_PATTERN variable"
             echo "FILE_PATTERN=$FILE_PATTERN" >> $GITHUB_ENV
