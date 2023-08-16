@@ -13,7 +13,7 @@ jobs:
           args: "--replace"
           github-token: ${{ secrets.GITHUB_TOKEN }}
           skip-commit: true
-          files: "${{ env.GITHUB_WORKSPACE }}/src/main/java/com/haemil/backend/${GITHUB_REF#refs/heads/}/*"
+          files: "${{ env.GITHUB_WORKSPACE }}/src/main/java/com/haemil/backend/${{GITHUB_REF#refs/heads/}}/*"
           
       - name: Print diffs
         run: git --no-pager diff --exit-code
