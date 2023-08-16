@@ -10,4 +10,4 @@ jobs:
         with:
           args: "set-exit-if-changed --fix-imports-only"
           commit-message: "format: Google Java Format"
-					github-token: ${{ secrets.GH_TOKEN }}
+	  github-token: ${{ secrets.GH_TOKEN }}
