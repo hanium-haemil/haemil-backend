@@ -4,11 +4,13 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import lombok.Getter;
+import lombok.Setter;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
 @Getter
+@Setter
 @JsonPropertyOrder({"success", "message", "result"})
 public class BaseResponse<T> {
 
@@ -33,6 +35,7 @@ public class BaseResponse<T> {
         this.message = status.getMessage();
         this.status = status.getStatus();
     }
+
 
 
     public ResponseEntity<BaseResponse> convert() {

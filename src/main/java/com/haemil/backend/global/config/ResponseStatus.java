@@ -16,7 +16,7 @@ public enum ResponseStatus {
     CONFLICT(409,HttpStatus.Series.CLIENT_ERROR, "Conflict"),
     PAYLOAD_TOO_LARGE(413,HttpStatus.Series.CLIENT_ERROR, "Payload Too Large"),
     URI_TOO_LONG(414,HttpStatus.Series.CLIENT_ERROR, "URI Too Long"),
-
+    MISSING_REQUIRED_FIELD(400, HttpStatus.Series.CLIENT_ERROR, "Required field(s) are missing"),
     // --- 5xx Server Error ---
     INTERNAL_SERVER_ERROR(500,HttpStatus.Series.SERVER_ERROR, "Internal Server Error"),
     BAD_GATEWAY(502,HttpStatus.Series.SERVER_ERROR, "Bad Gateway"),
