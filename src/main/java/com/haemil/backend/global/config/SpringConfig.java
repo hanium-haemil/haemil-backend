@@ -1,6 +1,7 @@
-package com.haemil.backend.schedule.service;
+package com.haemil.backend.global.config;
 
 import com.haemil.backend.schedule.repository.ScheduleRepository;
+import com.haemil.backend.schedule.service.ScheduleService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 

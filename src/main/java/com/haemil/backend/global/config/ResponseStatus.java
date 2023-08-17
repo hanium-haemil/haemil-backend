@@ -16,6 +16,7 @@ public enum ResponseStatus {
     CONFLICT(409,HttpStatus.Series.CLIENT_ERROR, "Conflict"),
     PAYLOAD_TOO_LARGE(413,HttpStatus.Series.CLIENT_ERROR, "Payload Too Large"),
     URI_TOO_LONG(414,HttpStatus.Series.CLIENT_ERROR, "URI Too Long"),
+<<<<<<< HEAD
     INVALID_DATA_FORMAT(415, HttpStatus.Series.CLIENT_ERROR, "Invalid Data Format"),
 
     // for mypage status
@@ -23,6 +24,9 @@ public enum ResponseStatus {
     INVALID_TOKEN(false, 473, "Authorization header에 잘못된 토큰을 입력하였습니다."),
     INVALID_AUTH(false, 474, "잘못된 Authorization 입니다."),
 
+=======
+    MISSING_REQUIRED_FIELD(400, HttpStatus.Series.CLIENT_ERROR, "Required field(s) are missing"),
+>>>>>>> 3911116 ([FEAT] add schedule api)
     // --- 5xx Server Error ---
     INTERNAL_SERVER_ERROR(500,HttpStatus.Series.SERVER_ERROR, "Internal Server Error"),
     BAD_GATEWAY(502,HttpStatus.Series.SERVER_ERROR, "Bad Gateway"),

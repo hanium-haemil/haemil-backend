@@ -40,7 +40,7 @@ public class Schedule {
     private LocalTime time;
 
     //일정 내용
-    @Column(nullable = true, length = 100)
+    @Column(nullable = false, length = 100)
     private String content;
 
     //장소
