@@ -3,6 +3,7 @@ package com.haemil.backend.schedule.controller;
 import com.fasterxml.jackson.databind.ser.Serializers;
 import com.haemil.backend.global.config.BaseResponse;
 import com.haemil.backend.global.config.ResponseStatus;
+import com.haemil.backend.global.exception.BaseException;
 import com.haemil.backend.schedule.dto.ScheduleRequestDto;
 import com.haemil.backend.schedule.dto.ScheduleResponseDto;
 import com.haemil.backend.schedule.entity.Schedule;
@@ -22,6 +23,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import static com.haemil.backend.global.config.ResponseStatus.BAD_REQUEST;
 import static com.haemil.backend.global.config.ResponseStatus.INTERNAL_SERVER_ERROR;
 
 
@@ -32,44 +34,60 @@ public class ScheduleController {
     public final ScheduleService scheduleService;
 
     @Autowired
-    public ScheduleController(ScheduleService scheduleService){
+    public ScheduleController(ScheduleService scheduleService) {
         this.scheduleService = scheduleService;
     }
 
     //일정 추가 API
     @PostMapping("/schedule")
     public ResponseEntity<BaseResponse> createSchedule(@RequestBody ScheduleRequestDto scheduleRequestDto) {
+
         try {
             ScheduleResponseDto createSchedule = scheduleService.createSchedule(scheduleRequestDto);
             BaseResponse<ScheduleResponseDto> response = new BaseResponse<>(createSchedule);
             return response.convert();
-        } catch (Exception e){
-            ResponseStatus responseStatus = INTERNAL_SERVER_ERROR;
-            BaseResponse<String> errorResponse = new BaseResponse<>(responseStatus);
-            return errorResponse.convert();
+
+        } catch (BaseException e) {
+            return new BaseResponse<>(e.getStatus()).convert();
         }
+
     }
 
     //주어진 날짜에 해당하는 일정 조회 API
     @GetMapping("/getSchedule")
-    public ResponseEntity<List<Schedule>> getSchedulesByDate(@RequestParam("localDate") @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate localDate){
-        List<Schedule> schedules = scheduleService.getSchedule(localDate);
-        return ResponseEntity.ok(schedules);
+    public ResponseEntity<BaseResponse> getSchedulesByDate(@RequestParam("localDate") @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate localDate){
+       try {
+           List<Schedule> schedules = scheduleService.getSchedule(localDate);
+           return new BaseResponse<>(schedules).convert();
+       }catch (BaseException e) {
+           return new BaseResponse<>(e.getStatus()).convert();
+       }
     }
 
 
     //오늘 일정 조회 API
     @GetMapping("/today")
-    public ResponseEntity<List<Schedule>> getTodaySchedules() {
-        List<Schedule> todaySchedules = scheduleService.getTodaySchedules();
-        return ResponseEntity.ok(todaySchedules);
+    public ResponseEntity<BaseResponse> getTodaySchedules() {
+        try {
+            List<Schedule> todaySchedules = scheduleService.getTodaySchedules();
+            return new BaseResponse<>(todaySchedules).convert();
+
+        } catch(BaseException e) {
+            return new BaseResponse<>(e.getStatus()).convert();
+        }
     }
 
 
     //일정 삭제 API
     @DeleteMapping("/schedule/{scheduleId}")
-    public Long deleteSchedule(@PathVariable Long scheduleId){
-        return scheduleService.deleteSchedule(scheduleId);
+    public ResponseEntity<BaseResponse> deleteSchedule(@PathVariable Long scheduleId){
+        try {
+            Long deletedId = scheduleService.deleteSchedule(scheduleId);
+            BaseResponse<Long> response = new BaseResponse<>(deletedId);
+            return response.convert();
+        } catch (BaseException e) {
+            return new BaseResponse<>(e.getStatus()).convert();
+        }
     }
 
 
