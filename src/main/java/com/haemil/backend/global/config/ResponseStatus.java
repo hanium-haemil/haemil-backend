@@ -16,6 +16,7 @@ public enum ResponseStatus {
     CONFLICT(409,HttpStatus.Series.CLIENT_ERROR, "Conflict"),
     PAYLOAD_TOO_LARGE(413,HttpStatus.Series.CLIENT_ERROR, "Payload Too Large"),
     URI_TOO_LONG(414,HttpStatus.Series.CLIENT_ERROR, "URI Too Long"),
+    INVALID_DATA_FORMAT(415, HttpStatus.Series.CLIENT_ERROR, "Invalid Data Format"),
 
     // --- 5xx Server Error ---
     INTERNAL_SERVER_ERROR(500,HttpStatus.Series.SERVER_ERROR, "Internal Server Error"),

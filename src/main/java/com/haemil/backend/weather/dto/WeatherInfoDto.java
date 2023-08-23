@@ -1,5 +1,6 @@
 package com.haemil.backend.weather.dto;
 
+import io.swagger.annotations.ApiParam;
 import lombok.Data;
 
 @Data
