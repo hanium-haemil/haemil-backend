@@ -1,0 +1,17 @@
+# RDS Config
+spring:
+  profiles:
+    include: secret
+  output:
+    ansi:
+      enabled: always
+
+# Redis Config
+redis:
+  host: 127.0.0.1
+  port: 6379
+
+# logging
+logging:
+  level:
+    com.haemil.backend: DEBUG
