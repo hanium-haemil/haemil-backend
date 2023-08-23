@@ -31,10 +31,9 @@ public class AuthController {
     private long CookiePeriod;
 
     @PostMapping("/kakao")
-    public ResponseEntity<BaseResponse> loginKakao(@RequestParam Boolean isGuardian, @RequestBody KakaoLoginParams params) {
+    public ResponseEntity<BaseResponse> loginKakao(@RequestBody KakaoLoginParams params) {
         try {
-            log.debug("isGuardian = {}", isGuardian);
-            RespLoginDto respLoginDto = authService.login(params, isGuardian);
+            RespLoginDto respLoginDto = authService.login(params);
 
             HttpHeaders headers = respLoginDto.getHeaders();
             LoginDto loginDto = respLoginDto.getLoginDto();

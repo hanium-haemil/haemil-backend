@@ -46,21 +46,13 @@ public class User {
         private final String key;
     }
 
-    // 보호자 여부
-    public Boolean guardian;
-
-//    public enum OAuthProvider {
-//        KAKAO, GOOGLE
-//    }
-
     @Builder
-    public User(String email, String nickname, String profileImageUrl, Role role, OAuthProvider oAuthProvider, Boolean guardian) {
+    public User(String email, String nickname, String profileImageUrl, Role role, OAuthProvider oAuthProvider) {
         this.email = email;
         this.nickname = nickname;
         this.profileImageUrl = profileImageUrl;
         this.role = role;
         this.oAuthProvider = oAuthProvider;
-        this.guardian = guardian;
     }
 
     public User update(String name, String picture){
