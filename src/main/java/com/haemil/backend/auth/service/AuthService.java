@@ -49,6 +49,7 @@ public class AuthService {
 
         OAuthInfoResponse oAuthInfoResponse = requestOAuthInfoService.request(params);
         Long userId = findOrCreateUser(oAuthInfoResponse);
+        System.out.println("========> userId : " + userId);
         AuthTokens token = createToken(userId, oAuthInfoResponse);
 
         User user = userRepository.findById(userId).orElseThrow(() -> new BaseException(ResponseStatus.NO_USER));
@@ -162,23 +163,6 @@ public class AuthService {
         } catch (BaseException e) {
             throw new BaseException(ResponseStatus.INVALID_AUTH);
         }
-
-//         JWT 토큰 검증
-//        try {
-//            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-//            Long userId = Long.parseLong(authentication.getName());
-//            log.info("authentication = {}", authentication);
-//            log.info("userId = {}", userId);
-//
-//        // validate 진행 필요.
-//            if (!principal.equals(1)) {
-//                throw new BaseException(ResponseStatus.INVALID_AUTH);
-//            }
-//        } catch (JwtException e) {
-//            throw new BaseException(ResponseStatus.INVALID_AUTH);
-//        }
-
-
     }
 
     /* -- 그 외 메서드 -- */
@@ -225,6 +209,8 @@ public class AuthService {
     }
 
     private Long newUser(OAuthInfoResponse oAuthInfoResponse) {
+        log.debug("oAuthInfoResponse : {}", oAuthInfoResponse.getEmail());
+
         User user = User.builder()
                 .email(oAuthInfoResponse.getEmail())
                 .nickname(oAuthInfoResponse.getNickname())
@@ -233,6 +219,7 @@ public class AuthService {
                 .role(User.Role.USER) // 추가.
                 .build();
 
+        System.out.println("========> user : " + user);
         return userRepository.save(user).getId();
     }
 
