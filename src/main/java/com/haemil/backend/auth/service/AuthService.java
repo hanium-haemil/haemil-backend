@@ -49,7 +49,6 @@ public class AuthService {
 
         OAuthInfoResponse oAuthInfoResponse = requestOAuthInfoService.request(params);
         Long userId = findOrCreateUser(oAuthInfoResponse);
-        System.out.println("========> userId : " + userId);
         AuthTokens token = createToken(userId, oAuthInfoResponse);
 
         User user = userRepository.findById(userId).orElseThrow(() -> new BaseException(ResponseStatus.NO_USER));
@@ -142,12 +141,8 @@ public class AuthService {
 //            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
             String principal = getPrincipal(requestAccessToken);
 
-            log.info("AT input: {}", requestAccessToken);
-            log.info("principal: {}", principal);
-
             // Redis에 저장되어 있는 RT 삭제
             String refreshTokenInRedis = redisService.getValues("RT(" + SERVER + "):" + principal);
-            log.info("refreshTokenInRedis = {}", refreshTokenInRedis);
             if (refreshTokenInRedis == null) {
                 throw new BaseException(ResponseStatus.INVALID_AUTH);
             } else {
@@ -209,8 +204,6 @@ public class AuthService {
     }
 
     private Long newUser(OAuthInfoResponse oAuthInfoResponse) {
-        log.debug("oAuthInfoResponse : {}", oAuthInfoResponse.getEmail());
-
         User user = User.builder()
                 .email(oAuthInfoResponse.getEmail())
                 .nickname(oAuthInfoResponse.getNickname())
@@ -219,7 +212,6 @@ public class AuthService {
                 .role(User.Role.USER) // 추가.
                 .build();
 
-        System.out.println("========> user : " + user);
         return userRepository.save(user).getId();
     }
 

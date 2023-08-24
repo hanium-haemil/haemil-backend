@@ -54,9 +54,7 @@ public class AuthController {
             RespLoginDto respLoginDto = authService.login(params);
 
             HttpHeaders headers = respLoginDto.getHeaders();
-            System.out.println("-------> headers : " + headers);
             LoginDto loginDto = respLoginDto.getLoginDto();
-            System.out.println("-------> loginDto : " + loginDto);
 
             return ResponseEntity.ok().headers(headers).body(new BaseResponse<>(loginDto));
         } catch (BaseException e){
