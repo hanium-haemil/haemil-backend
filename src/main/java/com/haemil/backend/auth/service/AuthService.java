@@ -45,10 +45,10 @@ public class AuthService {
     private long CookiePeriod;
 
     // 로그인: 인증 정보 저장 및 비어 토큰 발급
-    public RespLoginDto login(OAuthLoginParams params, Boolean isGuardian) throws BaseException {
+    public RespLoginDto login(OAuthLoginParams params) throws BaseException {
 
         OAuthInfoResponse oAuthInfoResponse = requestOAuthInfoService.request(params);
-        Long userId = findOrCreateUser(oAuthInfoResponse, isGuardian);
+        Long userId = findOrCreateUser(oAuthInfoResponse);
         AuthTokens token = createToken(userId, oAuthInfoResponse);
 
         User user = userRepository.findById(userId).orElseThrow(() -> new BaseException(ResponseStatus.NO_USER));
@@ -141,12 +141,8 @@ public class AuthService {
 //            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
             String principal = getPrincipal(requestAccessToken);
 
-            log.info("AT input: {}", requestAccessToken);
-            log.info("principal: {}", principal);
-
             // Redis에 저장되어 있는 RT 삭제
             String refreshTokenInRedis = redisService.getValues("RT(" + SERVER + "):" + principal);
-            log.info("refreshTokenInRedis = {}", refreshTokenInRedis);
             if (refreshTokenInRedis == null) {
                 throw new BaseException(ResponseStatus.INVALID_AUTH);
             } else {
@@ -162,23 +158,6 @@ public class AuthService {
         } catch (BaseException e) {
             throw new BaseException(ResponseStatus.INVALID_AUTH);
         }
-
-//         JWT 토큰 검증
-//        try {
-//            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-//            Long userId = Long.parseLong(authentication.getName());
-//            log.info("authentication = {}", authentication);
-//            log.info("userId = {}", userId);
-//
-//        // validate 진행 필요.
-//            if (!principal.equals(1)) {
-//                throw new BaseException(ResponseStatus.INVALID_AUTH);
-//            }
-//        } catch (JwtException e) {
-//            throw new BaseException(ResponseStatus.INVALID_AUTH);
-//        }
-
-
     }
 
     /* -- 그 외 메서드 -- */
@@ -209,7 +188,7 @@ public class AuthService {
         // RT 저장
         ResponseCookie httpCookie = ResponseCookie.from("refresh-token", token.getRefreshToken())
                 .maxAge(CookiePeriod)
-                .domain("api.photohere.co.kr")
+                .domain("todohaemil.com")
                 .path("/")
                 .secure(true)
                 .httpOnly(true)
@@ -218,20 +197,19 @@ public class AuthService {
         return httpCookie;
     }
 
-    private Long findOrCreateUser(OAuthInfoResponse oAuthInfoResponse, Boolean isGuardian) {
+    private Long findOrCreateUser(OAuthInfoResponse oAuthInfoResponse) {
         return userRepository.findByEmail(oAuthInfoResponse.getEmail())
                 .map(User::getId)
-                .orElseGet(() -> newUser(oAuthInfoResponse, isGuardian));
+                .orElseGet(() -> newUser(oAuthInfoResponse));
     }
 
-    private Long newUser(OAuthInfoResponse oAuthInfoResponse, Boolean isGuardian) {
+    private Long newUser(OAuthInfoResponse oAuthInfoResponse) {
         User user = User.builder()
                 .email(oAuthInfoResponse.getEmail())
                 .nickname(oAuthInfoResponse.getNickname())
                 .profileImageUrl(oAuthInfoResponse.getProfileImageUrl())
                 .oAuthProvider(oAuthInfoResponse.getOAuthProvider())
                 .role(User.Role.USER) // 추가.
-                .guardian(isGuardian)
                 .build();
 
         return userRepository.save(user).getId();
