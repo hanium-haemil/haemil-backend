@@ -62,5 +62,14 @@ public class Schedule {
         return fixed_schedule;
     }
 
+    private String mapUrl;
+
+    public String getMapUrl() {
+        return mapUrl;
+    }
+
+    public void setMapUrl(String mapUrl) {
+        this.mapUrl = mapUrl;
+    }
 
 }
