@@ -16,7 +16,7 @@ public enum ResponseStatus {
     CONFLICT(409,HttpStatus.Series.CLIENT_ERROR, "Conflict"),
     PAYLOAD_TOO_LARGE(413,HttpStatus.Series.CLIENT_ERROR, "Payload Too Large"),
     URI_TOO_LONG(414,HttpStatus.Series.CLIENT_ERROR, "URI Too Long"),
-    MISSING_REQUIRED_FIELD(400, HttpStatus.Series.CLIENT_ERROR, "Required field(s) are missing"),
+    MISSING_REQUIRED_FIELD(415, HttpStatus.Series.CLIENT_ERROR, "Required field(s) are missing"),
 
     // for mypage status
     NO_USER(false, 472, "존재하지 않는 유저입니다."),

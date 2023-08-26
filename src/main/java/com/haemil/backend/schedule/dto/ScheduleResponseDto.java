@@ -4,6 +4,7 @@ import com.haemil.backend.schedule.entity.RepeatType;
 import com.haemil.backend.schedule.entity.Schedule;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import java.time.DayOfWeek;
 import java.time.LocalDate;
@@ -13,7 +14,10 @@ import java.time.LocalTime;
 //클라이언트에게 응답할 때 필요한 속성들 추가
 @NoArgsConstructor
 @Getter
+@Setter
 public class ScheduleResponseDto {
+
+    private String mapUrl;
 
     private Long id;
 

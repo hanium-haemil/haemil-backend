@@ -53,5 +53,14 @@ public class Schedule {
     @Column(nullable = false)
     private RepeatType repeatType;
 
+    private String mapUrl;
+
+    public String getMapUrl() {
+        return mapUrl;
+    }
+
+    public void setMapUrl(String mapUrl) {
+        this.mapUrl = mapUrl;
+    }
 
 }

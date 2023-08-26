@@ -19,6 +19,8 @@ import com.haemil.backend.global.config.ResponseStatus;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.util.List;
 import java.util.Optional;
 
@@ -36,10 +38,7 @@ public class ScheduleService {
     }
 
     //일정 생성
-    public ScheduleResponseDto createSchedule(ScheduleRequestDto scheduleRequestDto) throws BaseException{
-
-        //String responseBody;
-
+    public ScheduleResponseDto createSchedule(ScheduleRequestDto scheduleRequestDto) throws BaseException {
         try {
             LocalDate localDate = scheduleRequestDto.getLocalDate();
             DayOfWeek dayOfWeek = scheduleRequestDto.getDayOfWeek();
@@ -49,7 +48,6 @@ public class ScheduleService {
             String place = scheduleRequestDto.getPlace();
             String medicine = scheduleRequestDto.getMedicine();
             RepeatType repeatType = scheduleRequestDto.getRepeatType();
-
 
             Schedule schedule = new Schedule();
 
@@ -62,7 +60,7 @@ public class ScheduleService {
             schedule.setRepeatType(repeatType);
             schedule.setMedicine(medicine);
 
-            log.debug("Schedule fields set....");
+            //log.debug("Schedule fields set....");
 
             // missing field 존재 여부 검사
             if (localDate == null || dayOfWeek == null || time == null || content == null || done == null || repeatType == null) {
@@ -85,13 +83,11 @@ public class ScheduleService {
 
             Schedule createdSchedule = scheduleRepository.save(schedule);
             return new ScheduleResponseDto(createdSchedule);
-
-
-        } catch(MissingRequiredFieldException e) {
-            log.error("Missing required fields: ", e);
+        } catch (MissingRequiredFieldException e) {
+            //log.error("Missing required fields: ", e);
             throw new BaseException(ResponseStatus.MISSING_REQUIRED_FIELD);
         } catch (BaseException e) {
-            log.error("Same field is already exists.: ", e);
+            //log.error("Same field is already exists.: ", e);
             throw new BaseException(ResponseStatus.CONFLICT);
         }
 
@@ -99,20 +95,17 @@ public class ScheduleService {
     }
 
     //주어진 날짜에 해당하는 일정 조회
-    public List<Schedule> getSchedule(LocalDate localDate) throws BaseException{
+    public List<Schedule> getSchedule(LocalDate localDate) throws BaseException {
         try {
+            //log.debug("1");
             List<Schedule> schedules = scheduleRepository.findByLocalDate(localDate);
-
-            log.debug("1");
-        if (schedules.isEmpty()) {
-                  throw new BaseException(ResponseStatus.NOT_FOUND);
-              }
-
-            log.debug("2");
-
+            //log.debug("2");
+            if (schedules.isEmpty()) {
+                throw new BaseException(ResponseStatus.NOT_FOUND);
+            }
             return schedules;
-        }catch(BaseException e){
-            log.error("Error occurred while fetching schedules: " + e.getMessage());
+        } catch (BaseException e) {
+            //log.error("Error occurred while fetching schedules: " + e.getMessage());
             throw new BaseException(ResponseStatus.NOT_FOUND); // 현재의 예외를 다시 던져줍니다.
         }
 
@@ -131,8 +124,8 @@ public class ScheduleService {
 
             return todaySchedules;
 
-        } catch(BaseException e){
-            log.error("Error occurred while fetching schedules: " + e.getMessage());
+        } catch (BaseException e) {
+            //log.error("Error occurred while fetching schedules: " + e.getMessage());
             throw new BaseException(ResponseStatus.NOT_FOUND); // 현재의 예외를 다시 던져줍니다.
         }
     }
@@ -140,30 +133,61 @@ public class ScheduleService {
     //일정 삭제
     @Transactional
     public Long deleteSchedule(Long scheduleId) {
-        scheduleRepository.deleteById(scheduleId);
-        return scheduleId;
+        try {
+            Optional<Schedule> optionalSchedule = scheduleRepository.findById(scheduleId);
+
+            if (optionalSchedule.isEmpty()) {
+                throw new BaseException(ResponseStatus.NOT_FOUND);
+            }
+            scheduleRepository.deleteById(scheduleId);
+            return scheduleId;
+        } catch (BaseException e) {
+            //log.error("ID does not exist.");
+            throw new BaseException(ResponseStatus.NOT_FOUND);
+        }
     }
 
     //일정 수정
     @Transactional
     public Schedule updateSchedule(Long id, ScheduleRequestDto requestDto) {
-        Schedule schedule = scheduleRepository.findById(id).orElse(null);
 
-        if (schedule == null) {
-            throw new IllegalArgumentException("해당 아이디가 존재하지 않습니다");
+        try {
+            Schedule schedule = scheduleRepository.findById(id).orElse(null);
+
+            if (schedule == null) {
+                throw new BaseException(ResponseStatus.NOT_FOUND); // 해당 아이디가 존재하지 않는 경우
+            }
+            // Validate the updated schedule's fields
+            LocalDate newLocalDate = requestDto.getLocalDate();
+            DayOfWeek newDayOfWeek = requestDto.getDayOfWeek();
+            String newContent = requestDto.getContent();
+            Boolean newDone = requestDto.getDone();
+            LocalTime newTime = requestDto.getTime();
+            String newPlace = requestDto.getPlace();
+            String newMedicine = requestDto.getMedicine();
+            RepeatType newRepeatType = requestDto.getRepeatType();
+
+            if (newLocalDate == null || newDayOfWeek == null || newTime == null || newContent == null || newDone == null || newRepeatType == null) {
+                throw new MissingRequiredFieldException("Required field(s) are missing in updated schedule");
+            }
+
+            schedule.setLocalDate(newLocalDate);
+            schedule.setDayOfWeek(newDayOfWeek);
+            schedule.setContent(newContent);
+            schedule.setDone(newDone);
+            schedule.setTime(newTime);
+            schedule.setPlace(newPlace);
+            schedule.setRepeatType(newRepeatType);
+            schedule.setMedicine(newMedicine);
+
+            return scheduleRepository.save(schedule);
+
+        } catch (MissingRequiredFieldException e) {
+            //log.error("Missing required fields: ", e);
+            throw new BaseException(ResponseStatus.MISSING_REQUIRED_FIELD);
+        } catch (BaseException e) {
+
+            throw new BaseException(ResponseStatus.NOT_FOUND);
         }
-
-        schedule.setLocalDate(requestDto.getLocalDate());
-        schedule.setDayOfWeek(requestDto.getDayOfWeek());
-        schedule.setContent(requestDto.getContent());
-        schedule.setDone(requestDto.getDone());
-        schedule.setTime(requestDto.getTime());
-        schedule.setPlace(requestDto.getPlace());
-        schedule.setRepeatType(requestDto.getRepeatType());
-        schedule.setMedicine(requestDto.getMedicine());
-
-        return scheduleRepository.save(schedule);
     }
-
-
 }
