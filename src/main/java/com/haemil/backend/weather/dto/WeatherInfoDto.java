@@ -1,5 +1,4 @@
 package com.haemil.backend.weather.dto;
-
 import lombok.Data;
 
 @Data

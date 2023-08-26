@@ -41,8 +41,6 @@ public class AuthTokensGenerator {
 
         // Redis에 RT 저장
         saveRefreshToken(provider, email, refreshToken);
-        log.info("Redis 저장 완료");
-
         return AuthTokens.of(accessToken, refreshToken, BEARER_TYPE, ATPeriod / 1000L);
     }
 

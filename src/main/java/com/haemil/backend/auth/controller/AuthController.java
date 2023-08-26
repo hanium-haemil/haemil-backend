@@ -4,6 +4,7 @@ import com.haemil.backend.auth.dto.LoginDto;
 import com.haemil.backend.auth.dto.RespLoginDto;
 import com.haemil.backend.auth.dto.SuccessDto;
 import com.haemil.backend.auth.dto.kakao.KakaoLoginParams;
+import com.haemil.backend.auth.dto.naver.NaverLoginParams;
 import com.haemil.backend.auth.service.AuthService;
 import com.haemil.backend.global.config.BaseException;
 import com.haemil.backend.global.config.BaseResponse;
@@ -30,11 +31,27 @@ public class AuthController {
     @Value("${jwt.cookie-period}")
     private long CookiePeriod;
 
+    // 카카오 로그인
     @PostMapping("/kakao")
-    public ResponseEntity<BaseResponse> loginKakao(@RequestParam Boolean isGuardian, @RequestBody KakaoLoginParams params) {
+    public ResponseEntity<BaseResponse> loginKakao(@RequestBody KakaoLoginParams params) {
         try {
-            log.debug("isGuardian = {}", isGuardian);
-            RespLoginDto respLoginDto = authService.login(params, isGuardian);
+            RespLoginDto respLoginDto = authService.login(params);
+
+            HttpHeaders headers = respLoginDto.getHeaders();
+            LoginDto loginDto = respLoginDto.getLoginDto();
+
+            return ResponseEntity.ok().headers(headers).body(new BaseResponse<>(loginDto));
+        } catch (BaseException e){
+            return new BaseResponse<>(e.getStatus()).convert();
+        }
+    }
+
+    // 네이버 로그인
+    @PostMapping("/naver")
+    public ResponseEntity<BaseResponse> loginNaver(@RequestBody NaverLoginParams params) {
+        try {
+
+            RespLoginDto respLoginDto = authService.login(params);
 
             HttpHeaders headers = respLoginDto.getHeaders();
             LoginDto loginDto = respLoginDto.getLoginDto();
@@ -57,7 +74,6 @@ public class AuthController {
             // RT 저장
             ResponseCookie responseCookie = ResponseCookie.from("refresh-token", reissuedTokenDto.getRefreshToken())
                     .maxAge(CookiePeriod)
-//                    .domain(".photohere.co.kr")
                     .path("/")
                     .sameSite("None")
                     .httpOnly(true)
@@ -89,16 +105,6 @@ public class AuthController {
 //                    .build();
         }
     }
-
-    // temp mapping - find cookie
-
-    @RequestMapping("/getCookie1")
-    public ResponseEntity<BaseResponse<String>> getCookie1(@CookieValue String useremail, @CookieValue("useremail") String umail) {
-        System.out.println(umail);
-        return ResponseEntity.ok().body(new BaseResponse<>("test."));
-    }
-
-    // --
 
     // 로그아웃
     @PostMapping("/logout")
