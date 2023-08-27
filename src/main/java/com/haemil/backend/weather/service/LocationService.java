@@ -3,6 +3,7 @@ package com.haemil.backend.weather.service;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.haemil.backend.alert.dto.ReqCoordDto;
 import com.haemil.backend.global.config.BaseException;
 import com.haemil.backend.global.config.ResponseStatus;
 import com.haemil.backend.weather.dto.LivingDto;
@@ -15,6 +16,7 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.RequestEntity;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.client.RestTemplate;
 
 import java.io.UnsupportedEncodingException;
@@ -29,11 +31,11 @@ public class LocationService {
     @Value("${api.hj-kakao-key}")
     String serviceKey;
 
-    public String getLocationInfo() throws BaseException {
+    public String getLocationInfo(@RequestBody ReqCoordDto reqCoordDto) throws BaseException {
         String responseBody;
         try {
-            String x = "126.980008333333"; // 임의 nx
-            String y = "37.5635694444444"; // 임의 ny
+            String latitude = reqCoordDto.getLatitude();
+            String longitude = reqCoordDto.getLongitude();
 
             HttpHeaders headers = new HttpHeaders();
             headers.add("Authorization", "KakaoAK " + serviceKey);
@@ -41,8 +43,8 @@ public class LocationService {
 //            log.debug("serviceKey: " + serviceKey);
 
             StringBuilder urlBuilder = new StringBuilder("https://dapi.kakao.com/v2/local/geo/coord2regioncode.json");
-            urlBuilder.append("?"+ URLEncoder.encode("x", "UTF-8")+"="+URLEncoder.encode(x, "UTF-8"));
-            urlBuilder.append("&"+ URLEncoder.encode("y", "UTF-8")+"="+URLEncoder.encode(y, "UTF-8"));
+            urlBuilder.append("?"+ URLEncoder.encode("x", "UTF-8")+"="+URLEncoder.encode(latitude, "UTF-8"));
+            urlBuilder.append("&"+ URLEncoder.encode("y", "UTF-8")+"="+URLEncoder.encode(longitude, "UTF-8"));
 
             URI url = new URI(urlBuilder.toString());
             RequestEntity<?> requestEntity = new RequestEntity<>(headers, HttpMethod.GET, url);
