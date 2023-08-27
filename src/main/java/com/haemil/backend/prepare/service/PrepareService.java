@@ -59,6 +59,7 @@ public class PrepareService {
                 prePareInfoDto.setMask(getMaskValue(prepareDto.getPm10grade(), prepareDto.getPm25grade()));
                 prePareInfoDto.setClothes(getClothesValue(prepareDto.getMaxTemp(), prepareDto.getMinTemp(), prepareDto.getTmp()));
                 prePareInfoDto.setUmbrella(needUmbrella(prepareDto.getPop(), prepareDto.getPty()));
+                prePareInfoDto.setFeel_like(prepareDto.getFeelLike());
                 int percent = getPercentValue(prepareDto);
                 prePareInfoDto.setPercent(percent);
 
@@ -132,7 +133,7 @@ public class PrepareService {
 
     public int getPercentValue(PrepareDto prepareDto) throws BaseException {
         // 구현 방법에 따라 외출 적합도를 판단하여 해당 퍼센트 값을 반환
-        int percentValue = 0; // 디폴트 값 0
+        int percentValue = 50; // 디폴트 값 0
 
         try {
             // 현재 실시간 weather 정보
@@ -203,10 +204,21 @@ public class PrepareService {
                     break;
             }
 
-            // Make sure the percent value stays within 0-100 range
+            int uvIndex = Integer.parseInt(prepareDto.getUv()); // 자외선 지수
+            if (uvIndex >= 0 && uvIndex <= 2) {
+                percentValue += 10;
+            } else if (uvIndex >= 3 && uvIndex <= 5) {
+                percentValue += 5;
+            } else if (uvIndex >= 6 && uvIndex <= 7) {
+                percentValue += 0;
+            } else if (uvIndex >= 8 && uvIndex <= 10) {
+                percentValue -= 5;
+            } else if (uvIndex >= 11) {
+                percentValue -= 10;
+            }
+
             percentValue = Math.max(0, Math.min(100, percentValue));
         } catch (NumberFormatException e) {
-            // Handle parsing errors if needed
             log.error("NumberFormatException occurred while parsing data: {}", e.getMessage());
             throw new BaseException(ResponseStatus.INVALID_DATA_FORMAT);
         }
