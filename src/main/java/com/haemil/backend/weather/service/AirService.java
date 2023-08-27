@@ -39,7 +39,7 @@ public class AirService {
             String dataTerm = airDto.getDataTerm();
             String ver = airDto.getVer();
 
-            log.debug("stationName: " + stationName);
+//            log.debug("stationName: " + stationName);
 
             StringBuilder urlBuilder = new StringBuilder(apiUrl);
             urlBuilder.append("?"+ URLEncoder.encode("serviceKey", "UTF-8")+"="+serviceKey);
@@ -54,8 +54,8 @@ public class AirService {
 
             responseBody = response.getBody();
 
-            log.info("Air _ urlBuilder: " + urlBuilder);
-            log.info("Air _ responseBody: " + responseBody);
+//            log.info("Air _ urlBuilder: " + urlBuilder);
+//            log.info("Air _ responseBody: " + responseBody);
         } catch (UnsupportedEncodingException e) {
             log.debug("UnsupportedEncodingException 발생 ");
             throw new BaseException(ResponseStatus.UNSUPPORTED_ENCODING);
@@ -69,9 +69,9 @@ public class AirService {
             ObjectMapper objectMapper = new ObjectMapper();
 
             JsonNode jsonNode = objectMapper.readTree(responseBody);
-            log.info("jsonNode = {}", jsonNode);
+//            log.info("jsonNode = {}", jsonNode);
             JsonNode itemsNode = jsonNode.get("response").get("body").get("items");
-            log.info("itemsNode = {}", itemsNode);
+//            log.info("itemsNode = {}", itemsNode);
 
             airInfoDtoList = new ArrayList<>();
             if (itemsNode.isArray()) {
@@ -92,7 +92,7 @@ public class AirService {
                 }
             }
 
-            log.debug("airInfoDtoList:" + airInfoDtoList);
+//            log.debug("airInfoDtoList:" + airInfoDtoList);
             return airInfoDtoList;
         } catch (JsonProcessingException e) {
             throw new BaseException(ResponseStatus.CANNOT_CONVERT_JSON);

@@ -2,6 +2,7 @@ package com.haemil.backend.prepare.dto;
 import com.haemil.backend.weather.controller.WeatherController;
 import com.haemil.backend.weather.controller.AirController;
 import com.haemil.backend.weather.dto.AirInfoDto;
+import com.haemil.backend.weather.dto.LivingInfoDto;
 import com.haemil.backend.weather.dto.WeatherInfoDto;
 import lombok.Data;
 import org.springframework.stereotype.Component;
@@ -30,15 +31,24 @@ public class PrepareDto {
     private String pm10grade; // 가장 최근꺼로 오늘꺼 미세먼지 등급
     private String pm25grade; // 가장 최근꺼로 오늘꺼 초미세먼지 등급
 
+    // living
+    private String feelLike; // 체감 온도
+    private String uv; // 자외선
+
     // 기본 생성자
     public PrepareDto() {
     }
 
     // 필요한 데이터를 주입받는 생성자
-    public PrepareDto(List<WeatherInfoDto> todayTemps, List<AirInfoDto> todayAirs, List<String> temps) {
+    public PrepareDto(List<WeatherInfoDto> todayTemps, List<AirInfoDto> todayAirs, List<String> temps, List<LivingInfoDto> livings) {
         this.todayTemps = todayTemps;
         this.todayAirs = todayAirs;
         this.maxTemp = temps.get(1);
         this.minTemp = temps.get(0);
+
+        if (!livings.isEmpty()) {
+            this.feelLike = livings.get(0).getFeels_like();
+            this.uv = livings.get(0).getUvi();
+        }
     }
 }

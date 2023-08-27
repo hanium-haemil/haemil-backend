@@ -46,8 +46,8 @@ public class StationService {
 
             responseBody = response.getBody();
 
-            log.info("station_urlBuilder: " + urlBuilder);
-            log.info("station_responseBody: " + responseBody);
+//            log.info("station_urlBuilder: " + urlBuilder);
+//            log.info("station_responseBody: " + responseBody);
         } catch (UnsupportedEncodingException e) {
             log.debug("UnsupportedEncodingException 발생 ");
             throw new BaseException(ResponseStatus.UNSUPPORTED_ENCODING);
@@ -65,7 +65,7 @@ public class StationService {
 
             String stationName = itemNode.get("stationName").asText();
 
-            log.info("stationName:" + stationName);
+//            log.info("stationName:" + stationName);
             return stationName;
         } catch (JsonProcessingException e) {
             throw new BaseException(ResponseStatus.CANNOT_CONVERT_JSON);
