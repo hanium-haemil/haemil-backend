@@ -16,6 +16,12 @@ public enum ResponseStatus {
     CONFLICT(409,HttpStatus.Series.CLIENT_ERROR, "Conflict"),
     PAYLOAD_TOO_LARGE(413,HttpStatus.Series.CLIENT_ERROR, "Payload Too Large"),
     URI_TOO_LONG(414,HttpStatus.Series.CLIENT_ERROR, "URI Too Long"),
+    INVALID_DATA_FORMAT(415, HttpStatus.Series.CLIENT_ERROR, "Invalid Data Format"),
+
+    // for mypage status
+    NO_USER(false, 472, "존재하지 않는 유저입니다."),
+    INVALID_TOKEN(false, 473, "Authorization header에 잘못된 토큰을 입력하였습니다."),
+    INVALID_AUTH(false, 474, "잘못된 Authorization 입니다."),
 
     // --- 5xx Server Error ---
     INTERNAL_SERVER_ERROR(500,HttpStatus.Series.SERVER_ERROR, "Internal Server Error"),
