@@ -16,6 +16,8 @@ import org.springframework.web.client.RestTemplate;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -146,5 +148,35 @@ public class WeatherService {
         }
 
         return TMNXList;
+    }
+
+    public List<WeatherInfoDto> filterCurrentTimeAndSpecifiedDateData(List<WeatherInfoDto> weatherInfoDtoList, String specifiedTime) {
+        List<WeatherInfoDto> filteredList = new ArrayList<>();
+
+        for (WeatherInfoDto weatherInfoDto : weatherInfoDtoList) {
+            String fcstTime = weatherInfoDto.getFcstTime();
+            String fcstDate = weatherInfoDto.getFcstDate();
+
+            // 지정한 시간과 지정한 날짜에 해당하는 데이터만 필터링 (오늘, 내일, 모레)
+            if (fcstTime.equals(specifiedTime) && isSpecifiedDate(fcstDate)) {
+                if (weatherInfoDto.getCategory().equals("TMP")) {
+                    filteredList.add(weatherInfoDto);
+                }
+            }
+        }
+        return filteredList;
+    }
+
+    private boolean isSpecifiedDate(String fcstDate) {
+        LocalDate today = LocalDate.now();
+        LocalDate tomorrow = today.plusDays(1);
+        LocalDate dayAfterTomorrow = today.plusDays(2);
+
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMdd");
+        LocalDate parsedFcstDate = LocalDate.parse(fcstDate, formatter);
+
+        return parsedFcstDate.equals(today) ||
+                parsedFcstDate.equals(tomorrow) ||
+                parsedFcstDate.equals(dayAfterTomorrow);
     }
 }

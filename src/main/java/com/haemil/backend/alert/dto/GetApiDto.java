@@ -14,5 +14,5 @@ public class GetApiDto {
     private final String type = "JSON";    //데이터 타입
 
     private String pageNo = "1";    //페이지 번호
-    private String numOfRows = "1";    //한 페이지 결과 수
+    private String numOfRows = "5";    //한 페이지 결과 수
 }

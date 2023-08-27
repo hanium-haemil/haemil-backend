@@ -8,8 +8,10 @@ import com.haemil.backend.global.config.ResponseStatus;
 import com.haemil.backend.prepare.dto.PrepareDto;
 import com.haemil.backend.prepare.service.PrepareService;
 import com.haemil.backend.weather.controller.AirController;
+import com.haemil.backend.weather.controller.LivingController;
 import com.haemil.backend.weather.controller.WeatherController;
 import com.haemil.backend.weather.dto.AirInfoDto;
+import com.haemil.backend.weather.dto.LivingInfoDto;
 import com.haemil.backend.weather.dto.WeatherInfoDto;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -28,6 +30,7 @@ import java.util.List;
 public class PrepareController {
     private final PrepareService prepareService;
     private final WeatherController weatherController;
+    private final LivingController livingController;
     private final AirController airController;
     private final ObjectMapper objectMapper; // ObjectMapper 주입
 
@@ -42,12 +45,15 @@ public class PrepareController {
             ResponseEntity<BaseResponse> airResponse = airController.sendGetRequest();
             List<AirInfoDto> todayAirs = airController.infoList;
 
-            List<String> temps = weatherController.tmnAndTmxData;
-            log.info("minmax = {}", temps.get(0));
+            ResponseEntity<BaseResponse> livingResponse = livingController.sendGetRequest();
+            List<LivingInfoDto> todayLivings = livingController.infoList;
 
-            PrepareDto prepareDto = new PrepareDto(todayTemps, todayAirs, temps);
+            List<String> temps = weatherController.tmnAndTmxData;
+//            log.info("minmax = {}", temps.get(0));
+
+            PrepareDto prepareDto = new PrepareDto(todayTemps, todayAirs, temps, todayLivings);
             prepareService.filterWeatherData(todayTemps, prepareDto);
-            log.info("tmp = {}", prepareDto.getTmp());
+//            log.info("tmp = {}", prepareDto.getTmp());
 
             prepareService.filterAirData(todayAirs, prepareDto);
 
@@ -57,7 +63,6 @@ public class PrepareController {
             String resultString = prepareService.ParsingJson(prepareDtoList);
             log.info("prePare_result = {}", resultString);
 
-            // 출력할 JSON을 깔끔하게 정렬하기 위해 ObjectMapper 사용
             Object jsonResult = objectMapper.readValue(resultString, Object.class);
             String prettyJsonString = objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(jsonResult);
 
