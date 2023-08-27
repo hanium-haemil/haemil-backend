@@ -10,7 +10,7 @@ public class AirDto {
     private final String numOfRows = "10";
     private final String pageNo = "1";
     private final String returnType = "json";
-    private String stationName; // 임의 지정
+    private String stationName; // 측정소  명
     private final String dataTerm = "DAILY";
     private final String ver = "1.0";
 }
