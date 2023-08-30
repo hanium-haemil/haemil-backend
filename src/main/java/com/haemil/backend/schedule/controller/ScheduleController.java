@@ -112,16 +112,17 @@ public class ScheduleController {
     @PatchMapping("/schedule/{scheduleId}")
     public ResponseEntity<BaseResponse> updateSchedule(@PathVariable Long scheduleId, @RequestBody ScheduleRequestDto requestDto) {
         try {
-            Schedule updatedSchedule = scheduleService.updateSchedule(scheduleId, requestDto);
-
+            Schedule updateSchedule = scheduleService.updateSchedule(scheduleId, requestDto);
             log.debug("requestDto.getPlace() = {}",requestDto.getPlace());
+
             // 맵 API 호출하여 맵 URL 얻어오는 부분
             String mapUrl = mapService.getMapUrl(requestDto.getPlace());
-            System.out.println(mapUrl);
-            // 응답에 맵 URL을 포함하여 리턴
-            updatedSchedule.setMapUrl(mapUrl);
 
-            ScheduleResponseDto responseDto = new ScheduleResponseDto(updatedSchedule);
+            // 응답에 맵 URL을 포함하여 리턴
+            updateSchedule.setMapUrl(mapUrl);
+            System.out.println(mapUrl);
+
+            ScheduleResponseDto responseDto = new ScheduleResponseDto(updateSchedule);
             BaseResponse<ScheduleResponseDto> response = new BaseResponse<>(responseDto);
             return response.convert();
 
