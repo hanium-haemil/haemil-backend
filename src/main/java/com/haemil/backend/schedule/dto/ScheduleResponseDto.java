@@ -39,6 +39,8 @@ public class ScheduleResponseDto {
 
 
     public ScheduleResponseDto(Schedule schedule){
+        this.mapUrl = schedule.getMapUrl();
+
         this.id = schedule.getId();
 
         this.localDate = schedule.getLocalDate();
