@@ -7,7 +7,6 @@ import com.haemil.backend.global.config.BaseException;
 import com.haemil.backend.global.config.ResponseStatus;
 import com.haemil.backend.weather.dto.AirDto;
 import com.haemil.backend.weather.dto.AirInfoDto;
-import com.haemil.backend.weather.entity.AirApi;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import lombok.extern.slf4j.Slf4j;
@@ -40,7 +39,7 @@ public class AirService {
             String dataTerm = airDto.getDataTerm();
             String ver = airDto.getVer();
 
-            log.debug("stationName: " + stationName);
+//            log.debug("stationName: " + stationName);
 
             StringBuilder urlBuilder = new StringBuilder(apiUrl);
             urlBuilder.append("?"+ URLEncoder.encode("serviceKey", "UTF-8")+"="+serviceKey);
@@ -55,8 +54,8 @@ public class AirService {
 
             responseBody = response.getBody();
 
-            log.info("Air _ urlBuilder: " + urlBuilder);
-            log.info("Air _ responseBody: " + responseBody);
+//            log.info("Air _ urlBuilder: " + urlBuilder);
+//            log.info("Air _ responseBody: " + responseBody);
         } catch (UnsupportedEncodingException e) {
             log.debug("UnsupportedEncodingException 발생 ");
             throw new BaseException(ResponseStatus.UNSUPPORTED_ENCODING);
@@ -67,14 +66,14 @@ public class AirService {
     public List<AirInfoDto> ParsingJson(String responseBody) throws BaseException {
         List<AirInfoDto> airInfoDtoList;
         try {
-            List<AirApi> airApiList = new ArrayList<>();
             ObjectMapper objectMapper = new ObjectMapper();
 
             JsonNode jsonNode = objectMapper.readTree(responseBody);
-            log.info("jsonNode = {}", jsonNode);
+//            log.info("jsonNode = {}", jsonNode);
             JsonNode itemsNode = jsonNode.get("response").get("body").get("items");
-            log.info("itemsNode = {}", itemsNode);
+//            log.info("itemsNode = {}", itemsNode);
 
+            airInfoDtoList = new ArrayList<>();
             if (itemsNode.isArray()) {
                 for (JsonNode node : itemsNode) {
                     String dataTime = node.get("dataTime").asText();
@@ -83,30 +82,17 @@ public class AirService {
                     String pm10Grade = node.get("pm10Grade").asText();
                     String pm25Grade = node.get("pm25Grade").asText();
 
-                    AirApi airApi = AirApi.builder()
-                            .dataTime(dataTime)
-                            .pm10Value(pm10Value)
-                            .pm25Value(pm25Value)
-                            .pm10Grade(pm10Grade)
-                            .pm25Grade(pm25Grade)
-                            .build();
-
-                    airApiList.add(airApi);
+                    AirInfoDto airInfoDto = new AirInfoDto();
+                    airInfoDto.setDataTime(dataTime);
+                    airInfoDto.setPm10Value(pm10Value);
+                    airInfoDto.setPm10Grade(pm10Grade);
+                    airInfoDto.setPm25Grade(pm25Grade);
+                    airInfoDto.setPm25Value(pm25Value);
+                    airInfoDtoList.add(airInfoDto);
                 }
             }
 
-            airInfoDtoList = new ArrayList<>();
-            for (AirApi a : airApiList) {
-                AirInfoDto airInfoDto = new AirInfoDto();
-
-                airInfoDto.setDataTime(a.getDataTime());
-                airInfoDto.setPm10Value(a.getPm10Value());
-                airInfoDto.setPm10Grade(a.getPm10Grade());
-                airInfoDto.setPm25Grade(a.getPm25Grade());
-                airInfoDto.setPm25Value(a.getPm25Value());
-                airInfoDtoList.add(airInfoDto);
-            }
-            log.debug("airInfoDtoList:" + airInfoDtoList);
+//            log.debug("airInfoDtoList:" + airInfoDtoList);
             return airInfoDtoList;
         } catch (JsonProcessingException e) {
             throw new BaseException(ResponseStatus.CANNOT_CONVERT_JSON);

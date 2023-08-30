@@ -7,7 +7,6 @@ import com.haemil.backend.global.config.BaseException;
 import com.haemil.backend.global.config.ResponseStatus;
 import com.haemil.backend.weather.dto.WeatherDto;
 import com.haemil.backend.weather.dto.WeatherInfoDto;
-import com.haemil.backend.weather.entity.WeatherApi;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -17,6 +16,8 @@ import org.springframework.web.client.RestTemplate;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -41,26 +42,20 @@ public class WeatherService {
             String nx = weatherDto.getNx();
             String ny = weatherDto.getNy();
 
-            log.debug("serviceKey: " + serviceKey);
-
             StringBuilder urlBuilder = new StringBuilder(apiUrl);
-            urlBuilder.append("?"+ URLEncoder.encode("serviceKey", "UTF-8")+"="+serviceKey);
-            urlBuilder.append("&"+ URLEncoder.encode("dataType", "UTF-8")+"="+URLEncoder.encode(type, "UTF-8"));
-            urlBuilder.append("&"+ URLEncoder.encode("numOfRows", "UTF-8")+"="+URLEncoder.encode(numOfRows, "UTF-8"));
-            urlBuilder.append("&"+ URLEncoder.encode("pageNo", "UTF-8")+"="+URLEncoder.encode(pageNo, "UTF-8"));
-            urlBuilder.append("&"+ URLEncoder.encode("base_date", "UTF-8")+"="+URLEncoder.encode(base_date, "UTF-8"));
-            urlBuilder.append("&"+ URLEncoder.encode("base_time", "UTF-8")+"="+URLEncoder.encode(base_time, "UTF-8"));
-            urlBuilder.append("&"+ URLEncoder.encode("nx", "UTF-8")+"="+URLEncoder.encode(nx, "UTF-8"));
-            urlBuilder.append("&"+ URLEncoder.encode("ny", "UTF-8")+"="+URLEncoder.encode(ny, "UTF-8"));
+            urlBuilder.append("?" + URLEncoder.encode("serviceKey", "UTF-8") + "=" + serviceKey);
+            urlBuilder.append("&" + URLEncoder.encode("dataType", "UTF-8") + "=" + URLEncoder.encode(type, "UTF-8"));
+            urlBuilder.append("&" + URLEncoder.encode("numOfRows", "UTF-8") + "=" + URLEncoder.encode(numOfRows, "UTF-8"));
+            urlBuilder.append("&" + URLEncoder.encode("pageNo", "UTF-8") + "=" + URLEncoder.encode(pageNo, "UTF-8"));
+            urlBuilder.append("&" + URLEncoder.encode("base_date", "UTF-8") + "=" + URLEncoder.encode(base_date, "UTF-8"));
+            urlBuilder.append("&" + URLEncoder.encode("base_time", "UTF-8") + "=" + URLEncoder.encode(base_time, "UTF-8"));
+            urlBuilder.append("&" + URLEncoder.encode("nx", "UTF-8") + "=" + URLEncoder.encode(nx, "UTF-8"));
+            urlBuilder.append("&" + URLEncoder.encode("ny", "UTF-8") + "=" + URLEncoder.encode(ny, "UTF-8"));
 
             ResponseEntity<String> response = restTemplate.getForEntity(urlBuilder.toString(), String.class);
 
             responseBody = response.getBody();
-
-            log.debug("urlBuilder: " + urlBuilder);
-            log.debug("responseBody: " + responseBody);
         } catch (UnsupportedEncodingException e) {
-            log.debug("UnsupportedEncodingException 발생 ");
             throw new BaseException(ResponseStatus.UNSUPPORTED_ENCODING);
         }
         return responseBody;
@@ -69,7 +64,7 @@ public class WeatherService {
     public List<WeatherInfoDto> ParsingJson(String responseBody) throws BaseException {
         List<WeatherInfoDto> weatherInfoDtoList;
         try {
-            List<WeatherApi> weatherApiList = new ArrayList<>();
+            List<WeatherInfoDto> weatherApiList = new ArrayList<>();
             ObjectMapper objectMapper = new ObjectMapper();
 
             JsonNode jsonNode = objectMapper.readTree(responseBody);
@@ -83,28 +78,16 @@ public class WeatherService {
                     String category = node.get("category").asText();
                     String fcstValue = node.get("fcstValue").asText();
 
-                    WeatherApi weatherApi = WeatherApi.builder()
-                            .fcstDate(fcstDate)
-                            .fcstTime(fcstTime)
-                            .category(category)
-                            .fcstValue(fcstValue)
-                            .build();
-
-                    weatherApiList.add(weatherApi);
+                    WeatherInfoDto weatherInfoDto = new WeatherInfoDto();
+                    weatherInfoDto.setFcstDate(fcstDate);
+                    weatherInfoDto.setFcstTime(fcstTime);
+                    weatherInfoDto.setCategory(category);
+                    weatherInfoDto.setFcstValue(fcstValue);
+                    weatherApiList.add(weatherInfoDto);
                 }
             }
 
-            weatherInfoDtoList = new ArrayList<>();
-            for (WeatherApi a : weatherApiList) {
-                WeatherInfoDto weatherInfoDto = new WeatherInfoDto();
-                weatherInfoDto.setFcstDate(a.getFcstDate());
-                weatherInfoDto.setFcstTime(a.getFcstTime());
-                weatherInfoDto.setCategory(a.getCategory());
-                weatherInfoDto.setFcstValue(a.getFcstValue());
-                weatherInfoDtoList.add(weatherInfoDto);
-            }
-            log.debug("weatherInfoDtoList:" + weatherInfoDtoList);
-
+            weatherInfoDtoList = new ArrayList<>(weatherApiList);
         } catch (JsonProcessingException e) {
             throw new BaseException(ResponseStatus.CANNOT_CONVERT_JSON);
         }
@@ -116,8 +99,84 @@ public class WeatherService {
 
         if (!isJson) {
             throw new BaseException(ResponseStatus.INVALID_XML_FORMAT);
-        }else {
+        } else {
             return true;
         }
+    }
+
+    public List<WeatherInfoDto> filterCurrentTimeData(List<WeatherInfoDto> weatherInfoDtoList, WeatherDto weatherDto) {
+        List<WeatherInfoDto> filteredList = new ArrayList<>();
+
+        for (WeatherInfoDto weatherInfoDto : weatherInfoDtoList) {
+            String fcstDate = weatherInfoDto.getFcstDate();
+            String fcstTime = weatherInfoDto.getFcstTime();
+
+            if (fcstDate.equals(weatherDto.getBase_date()) && fcstTime.equals(weatherDto.getCurrent_time())) {
+                filteredList.add(weatherInfoDto);
+            }
+        }
+
+        return filteredList;
+    }
+
+    public List<String> filterTMNandTMXData(List<WeatherInfoDto> weatherInfoDtoList, WeatherDto weatherDto) {
+        List<WeatherInfoDto> TMNList = new ArrayList<>();
+        List<WeatherInfoDto> TMXList = new ArrayList<>();
+        List<String> TMNXList = new ArrayList<>();
+
+        for (WeatherInfoDto weatherInfoDto : weatherInfoDtoList) {
+            String fcstDate = weatherInfoDto.getFcstDate();
+
+            if (fcstDate.equals(weatherDto.getBase_date())) {
+                String category = weatherInfoDto.getCategory();
+
+                if (category.equals("TMN")) {
+                    TMNList.add(weatherInfoDto);
+                } else if (category.equals("TMX")) {
+                    TMXList.add(weatherInfoDto);
+                }
+            }
+        }
+
+        for (WeatherInfoDto weatherInfoDto : TMNList) {
+            String fcstValue = weatherInfoDto.getFcstValue();
+            TMNXList.add(fcstValue);
+        }
+        for (WeatherInfoDto weatherInfoDto : TMXList) {
+            String fcstValue = weatherInfoDto.getFcstValue();
+            TMNXList.add(fcstValue);
+        }
+
+        return TMNXList;
+    }
+
+    public List<WeatherInfoDto> filterCurrentTimeAndSpecifiedDateData(List<WeatherInfoDto> weatherInfoDtoList, String specifiedTime) {
+        List<WeatherInfoDto> filteredList = new ArrayList<>();
+
+        for (WeatherInfoDto weatherInfoDto : weatherInfoDtoList) {
+            String fcstTime = weatherInfoDto.getFcstTime();
+            String fcstDate = weatherInfoDto.getFcstDate();
+
+            // 지정한 시간과 지정한 날짜에 해당하는 데이터만 필터링 (오늘, 내일, 모레)
+            if (fcstTime.equals(specifiedTime) && isSpecifiedDate(fcstDate)) {
+                if (weatherInfoDto.getCategory().equals("TMP")) {
+                    filteredList.add(weatherInfoDto);
+                }
+            }
+        }
+        return filteredList;
+    }
+
+    private boolean isSpecifiedDate(String fcstDate) {
+        LocalDate today = LocalDate.now();
+        LocalDate tomorrow = today.plusDays(1);
+        LocalDate dayAfterTomorrow = today.plusDays(2);
+
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMdd");
+        LocalDate parsedFcstDate = LocalDate.parse(fcstDate, formatter);
+
+        return parsedFcstDate.equals(today) ||
+                parsedFcstDate.equals(tomorrow) ||
+                parsedFcstDate.equals(dayAfterTomorrow);
     }
 }

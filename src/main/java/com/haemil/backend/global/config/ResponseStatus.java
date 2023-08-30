@@ -16,6 +16,7 @@ public enum ResponseStatus {
     CONFLICT(409,HttpStatus.Series.CLIENT_ERROR, "Conflict"),
     PAYLOAD_TOO_LARGE(413,HttpStatus.Series.CLIENT_ERROR, "Payload Too Large"),
     URI_TOO_LONG(414,HttpStatus.Series.CLIENT_ERROR, "URI Too Long"),
+    INVALID_DATA_FORMAT(415, HttpStatus.Series.CLIENT_ERROR, "Invalid Data Format"),
 
     // for mypage status
     NO_USER(false, 472, "존재하지 않는 유저입니다."),
@@ -32,8 +33,9 @@ public enum ResponseStatus {
     CANNOT_CONVERT_JSON(false, 550, "JSON 문자열로 변경할 수 없습니다."),
     UNSUPPORTED_ENCODING(false, 551, "지원되지 않는 인코딩 형식입니다."),
     URI_SYNT(false, 551, "URISyntaxException이 발생했습니다."),
-    INVALID_XML_FORMAT(false, 552, "SERVICE ERROR가 발생했습니다."),
-    UNKNOWN_ADDR(false, 553, "알 수 없는 주소를 입력받았습니다.");
+    INVALID_XML_FORMAT(false, 552, "api resp 과정 중 SERVICE ERROR가 발생했습니다."),
+    UNKNOWN_ADDR(false, 553, "알 수 없는 주소를 입력받았습니다."),
+    UNKNOWN_USER_LOCATION(false, 554, "유저의 위치를 가져오는 중 문제가 발생했습니다.");
 
     private boolean success;
     private int code;

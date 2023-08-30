@@ -3,11 +3,12 @@ package com.haemil.backend.alert.service;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.haemil.backend.alert.dto.ApiInfoDto;
+import com.haemil.backend.alert.dto.AlertDto;
 import com.haemil.backend.alert.dto.GetApiDto;
-import com.haemil.backend.alert.entity.AlertApi;
+import com.haemil.backend.alert.dto.ReqCoordDto;
 import com.haemil.backend.global.config.BaseException;
 import com.haemil.backend.global.config.ResponseStatus;
+import com.haemil.backend.weather.service.LocationService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -15,7 +16,6 @@ import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
-import org.springframework.web.client.UnknownContentTypeException;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URI;
@@ -48,30 +48,21 @@ public class AlertService {
             urlBuilder.append("&" + URLEncoder.encode("pageNo", "UTF-8") + "=" + URLEncoder.encode(pageNo, "UTF-8"));
             urlBuilder.append("&" + URLEncoder.encode("numOfRows", "UTF-8") + "=" + URLEncoder.encode(numOfRows, "UTF-8"));
 
-//            log.debug("urlBuilder: {}", urlBuilder);
-
             HttpHeaders headers = new HttpHeaders();
             headers.setContentType(MediaType.APPLICATION_JSON);
             headers.set("Accept", "*/*;q=0.9"); // HTTP_ERROR 방지
             HttpEntity<String> httpRequest = new HttpEntity<>(null, headers);
-//            log.debug("httpRequest = {}", httpRequest);
 
             RestTemplate restTemplate = new RestTemplate();
-//            log.debug("restTemplate = {}", restTemplate);
 
-            HttpStatus httpStatus = null;
             ResponseEntity<String> httpResponse = null;
 
             URI uri = new URI(urlBuilder.toString()); // service key is not registered 오류 방지
-//            log.debug("uri = {}", uri);
             httpResponse = restTemplate.exchange(uri, HttpMethod.GET, httpRequest, new ParameterizedTypeReference<String>(){});
-//            log.debug("httpResponse = {}", httpResponse);
 
             if (httpResponse != null && httpResponse.getBody() != null) {
                 responseBody = httpResponse.getBody();
             }
-//            log.debug("responseBody = {}",responseBody);
-
         } catch (UnsupportedEncodingException e) { // 에러가 발생했을 때 예외 status 명시
             log.debug("UnsupportedEncodingException 발생 ");
             throw new BaseException(ResponseStatus.UNSUPPORTED_ENCODING);
@@ -83,44 +74,54 @@ public class AlertService {
         return responseBody;
     }
 
-    public ApiInfoDto ParsingJson(String responseBody) throws BaseException {
-        ApiInfoDto apiInfoDto;
+    // 임시
+    private final LocationService locationService;
 
+    public List<AlertDto> ParsingJson(String responseBody, ReqCoordDto reqCoordDto) throws BaseException {
         try {
-            List<AlertApi> alertApiList = new ArrayList<>();
+            String fullLocationJsonString = locationService.getLocationInfo(reqCoordDto);
+            String userLocation = ParsingLocation(fullLocationJsonString);
+
+            List<AlertDto> alertApiList = new ArrayList<>();
             ObjectMapper objectMapper = new ObjectMapper();
 
             JsonNode jsonNode = objectMapper.readTree(responseBody);
             JsonNode firstElement = jsonNode.get("DisasterMsg").get(1);
             JsonNode rowNode = firstElement.get("row");
-            JsonNode nextNode = rowNode.get(0);
 
-            String msg = nextNode.get("msg").asText();
-            String location = nextNode.get("location_name").asText(); // 예시로 location_name을 사용하여 location 값을 가져옴
-
-//            log.debug("msg: " + msg);
-//            log.debug("location: " + location);
-
-            AlertApi alertApi = AlertApi.builder()
-                    .msg(msg)
-                    .location(location)
-                    .build();
-
-            alertApiList.add(alertApi);
-
-            // 변환된 데이터를 ApiInfoDto 형태로 리스트로 반환
-            apiInfoDto = new ApiInfoDto();
-
-            for (AlertApi a : alertApiList) {
-                apiInfoDto.setMsg(a.getMsg());
-                apiInfoDto.setLocation(a.getLocation());
+            for (JsonNode nextNode : rowNode) {
+                String msg = nextNode.get("msg").asText();
+                String location = nextNode.get("location_name").asText();
+                if (location.contains(userLocation)) {
+                    AlertDto alertDto = new AlertDto(msg, location);
+                    alertApiList.add(alertDto);
+                }
             }
-//            log.debug("apiInfoDto: " + apiInfoDto);
 
+            return alertApiList;
         } catch (JsonProcessingException e) { // 에러가 발생했을 때 예외 status 명시
             throw new BaseException(ResponseStatus.CANNOT_CONVERT_JSON);
         }
-        return apiInfoDto;
+    }
+
+    // -- 메소드 --
+    public String ParsingLocation(String fullLocationJsonString) throws BaseException {
+        try {
+            ObjectMapper objectMapper = new ObjectMapper();
+            JsonNode jsonNode = objectMapper.readTree(fullLocationJsonString);
+
+            JsonNode documentsNode = jsonNode.get("documents");
+            if (documentsNode != null && documentsNode.isArray() && documentsNode.size() > 0) {
+                JsonNode firstDocumentNode = documentsNode.get(0);
+                JsonNode region1DepthNameNode = firstDocumentNode.get("region_1depth_name");
+                if (region1DepthNameNode != null && region1DepthNameNode.isTextual()) {
+                    return region1DepthNameNode.asText();
+                }
+            }
+        } catch (JsonProcessingException e) {
+            throw new BaseException(ResponseStatus.CANNOT_CONVERT_JSON);
+        }
+        throw new BaseException(ResponseStatus.UNKNOWN_USER_LOCATION);
     }
 
     public boolean isJson(String xmlString) throws BaseException {
