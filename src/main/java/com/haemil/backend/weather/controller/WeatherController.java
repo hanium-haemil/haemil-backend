@@ -58,7 +58,7 @@ public class WeatherController {
     }
 
     @GetMapping("/tmps")
-    public ResponseEntity<BaseResponse> getTemperatures() {
+    public ResponseEntity<BaseResponse> getTemperatures() { // 3일치 온도 가져오기
         try {
             String jsonString = weatherService.getWeatherInfo(weatherDto);
             weatherService.isJson(jsonString);
@@ -70,6 +70,26 @@ public class WeatherController {
             return new BaseResponse<>(e.getStatus()).convert();
         }
     }
+
+    @GetMapping("/times")
+    public ResponseEntity<BaseResponse> getNextHoursWeather() {
+        try {
+            String jsonString = weatherService.getWeatherInfo(weatherDto);
+            weatherService.isJson(jsonString);
+            List<WeatherInfoDto> infoList = weatherService.ParsingJson(jsonString);
+
+            int numDataPoints = 5;
+            List<Map<String, String>> filteredData = weatherService.filterNextData(infoList, numDataPoints);
+
+            return new BaseResponse<>(filteredData).convert();
+        } catch (BaseException e) {
+            return new BaseResponse<>(e.getStatus()).convert();
+        }
+    }
+
+
+
+
 
 
 

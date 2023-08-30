@@ -17,9 +17,12 @@ import org.springframework.web.client.RestTemplate;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.time.LocalDate;
+import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Slf4j
 @Service
@@ -179,4 +182,59 @@ public class WeatherService {
                 parsedFcstDate.equals(tomorrow) ||
                 parsedFcstDate.equals(dayAfterTomorrow);
     }
+
+    public List<Map<String, String>> filterNextData(List<WeatherInfoDto> weatherInfoDtoList, int numDataPoints) {
+        List<Map<String, String>> filteredList = new ArrayList<>();
+
+        LocalTime currentTime = LocalTime.now();
+        DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("HH00");
+        String formattedCurrentTime = currentTime.format(timeFormatter);
+
+        for (int i = 0; i < numDataPoints; i++) {
+            LocalTime nextTime = currentTime.plusHours(i);
+            String formattedNextTime = nextTime.format(timeFormatter);
+
+            Map<String, String> dataPoint = new HashMap<>();
+            boolean hasTmp = false;
+            boolean hasSky = false;
+
+            String fcstDate;
+            String fcstTime;
+
+            if (nextTime.getHour() < currentTime.getHour()) {
+                LocalDate nextDay = LocalDate.now().plusDays(1);
+                fcstDate = nextDay.format(DateTimeFormatter.ofPattern("yyyyMMdd"));
+                fcstTime = String.format("%02d00", nextTime.getHour());
+            } else {
+                fcstDate = weatherInfoDtoList.get(0).getFcstDate();
+                fcstTime = String.format("%02d00", nextTime.getHour());
+            }
+
+            for (WeatherInfoDto weatherInfoDto : weatherInfoDtoList) {
+                String category = weatherInfoDto.getCategory();
+                String fcstValue = weatherInfoDto.getFcstValue();
+
+                if (weatherInfoDto.getFcstDate().equals(fcstDate) && weatherInfoDto.getFcstTime().equals(fcstTime) && (category.equals("TMP") || category.equals("SKY"))) {
+                    if (category.equals("TMP")) {
+                        dataPoint.put("TMP", fcstValue);
+                        hasTmp = true;
+                    } else if (category.equals("SKY")) {
+                        dataPoint.put("SKY", fcstValue);
+                        hasSky = true;
+                    }
+
+                    if (hasTmp && hasSky) {
+                        dataPoint.put("FCST_DATE", fcstDate);
+                        dataPoint.put("FCST_TIME", fcstTime);
+                        filteredList.add(dataPoint);
+                        break;
+                    }
+                }
+            }
+        }
+
+        return filteredList;
+    }
+
+
 }
