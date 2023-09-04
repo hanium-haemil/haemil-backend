@@ -33,9 +33,10 @@ import java.util.Optional;
 public class ScheduleService {
     private final ScheduleRepository scheduleRepository;
 
-    public ScheduleService(ScheduleRepository scheduleRepository){
+    public ScheduleService(ScheduleRepository scheduleRepository) {
         this.scheduleRepository = scheduleRepository;
     }
+
     //일정 생성
     public ScheduleResponseDto createSchedule(ScheduleRequestDto scheduleRequestDto) throws BaseException {
         try {
@@ -137,13 +138,6 @@ public class ScheduleService {
 
             throw new BaseException(ResponseStatus.NOT_FOUND);
         }
-    }
-
-    //오늘에 해당하는 일정 조회
-    public List<Schedule> getTodaySchedules(){
-        LocalDate today = LocalDate.now();
-        DayOfWeek dayOfWeek = today.getDayOfWeek();
-        return scheduleRepository.findByLocalDate(today);
     }
 
     //일정 수정
