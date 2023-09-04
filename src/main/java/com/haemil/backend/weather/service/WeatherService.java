@@ -19,10 +19,7 @@ import java.net.URLEncoder;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Slf4j
 @Service
@@ -122,52 +119,71 @@ public class WeatherService {
         return filteredList;
     }
 
-    public List<String> filterTMNandTMXData(List<WeatherInfoDto> weatherInfoDtoList, WeatherDto weatherDto) {
-        List<WeatherInfoDto> TMNList = new ArrayList<>();
-        List<WeatherInfoDto> TMXList = new ArrayList<>();
-        List<String> TMNXList = new ArrayList<>();
+    public Map<String, String> transformWeatherData(List<WeatherInfoDto> weatherInfoDtoList, List<WeatherInfoDto> todayData, WeatherDto weatherDto) {
+        List<WeatherInfoDto> Result = new ArrayList<>();
+        Map<String, String> resultData = new HashMap<>();
+
+        for (WeatherInfoDto today : todayData) {
+            String fcstValue = today.getFcstValue();
+            String category = today.getCategory();
+
+            if (category.equals("TMP")) {
+                resultData.put("current", fcstValue);
+                break;
+            }
+        }
 
         for (WeatherInfoDto weatherInfoDto : weatherInfoDtoList) {
             String fcstDate = weatherInfoDto.getFcstDate();
+            String fcstValue = weatherInfoDto.getFcstValue();
 
             if (fcstDate.equals(weatherDto.getBase_date())) {
                 String category = weatherInfoDto.getCategory();
 
                 if (category.equals("TMN")) {
-                    TMNList.add(weatherInfoDto);
+                    resultData.put("min", fcstValue);
                 } else if (category.equals("TMX")) {
-                    TMXList.add(weatherInfoDto);
+                    resultData.put("max", fcstValue);
                 }
             }
         }
 
-        for (WeatherInfoDto weatherInfoDto : TMNList) {
-            String fcstValue = weatherInfoDto.getFcstValue();
-            TMNXList.add(fcstValue);
-        }
-        for (WeatherInfoDto weatherInfoDto : TMXList) {
-            String fcstValue = weatherInfoDto.getFcstValue();
-            TMNXList.add(fcstValue);
-        }
-
-        return TMNXList;
+        return resultData;
     }
 
-    public List<WeatherInfoDto> filterCurrentTimeAndSpecifiedDateData(List<WeatherInfoDto> weatherInfoDtoList, String specifiedTime) {
-        List<WeatherInfoDto> filteredList = new ArrayList<>();
+    public List<Map<String, String>> filterCurrentTimeAndSpecifiedDateData(List<WeatherInfoDto> weatherInfoDtoList, String specifiedTime) {
+        Map<String, Map<String, String>> groupedData = new HashMap<>();
 
         for (WeatherInfoDto weatherInfoDto : weatherInfoDtoList) {
-            String fcstTime = weatherInfoDto.getFcstTime();
             String fcstDate = weatherInfoDto.getFcstDate();
+            String fcstTime = weatherInfoDto.getFcstTime();
+            String fcstValue = weatherInfoDto.getFcstValue();
+            String category = weatherInfoDto.getCategory();
 
-            // 지정한 시간과 지정한 날짜에 해당하는 데이터만 필터링 (오늘, 내일, 모레)
-            if (fcstTime.equals(specifiedTime) && isSpecifiedDate(fcstDate)) {
-                if (weatherInfoDto.getCategory().equals("TMP")) {
-                    filteredList.add(weatherInfoDto);
+            // "fcstTime"이 "1500"이고 오늘, 내일 또는 모레인 데이터만 필터링
+            if (fcstTime.equals(specifiedTime) && isSpecifiedDate(fcstDate) && (category.equals("TMP") || category.equals("SKY"))) {
+                // 날짜별로 데이터 그룹화
+                String key = fcstDate + fcstTime;
+                groupedData.putIfAbsent(key, new HashMap<>());
+                Map<String, String> dataPoint = groupedData.get(key);
+
+                dataPoint.put("fcstDate", fcstDate);
+                dataPoint.put("fcstTime", fcstTime);
+
+                if (category.equals("TMP")) {
+                    dataPoint.put("TMP", fcstValue);
+                }
+
+                if (category.equals("SKY")) {
+                    dataPoint.put("SKY", fcstValue);
                 }
             }
         }
-        return filteredList;
+
+        List<Map<String, String>> resultList = new ArrayList<>(groupedData.values());
+        resultList.sort(Comparator.comparing(dataPoint -> dataPoint.get("fcstDate")));
+
+        return resultList;
     }
 
     private boolean isSpecifiedDate(String fcstDate) {
@@ -178,10 +194,9 @@ public class WeatherService {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMdd");
         LocalDate parsedFcstDate = LocalDate.parse(fcstDate, formatter);
 
-        return parsedFcstDate.equals(today) ||
-                parsedFcstDate.equals(tomorrow) ||
-                parsedFcstDate.equals(dayAfterTomorrow);
+        return parsedFcstDate.equals(today) || parsedFcstDate.equals(tomorrow) || parsedFcstDate.equals(dayAfterTomorrow);
     }
+
 
     public List<Map<String, String>> filterNextData(List<WeatherInfoDto> weatherInfoDtoList, int numDataPoints) {
         List<Map<String, String>> filteredList = new ArrayList<>();

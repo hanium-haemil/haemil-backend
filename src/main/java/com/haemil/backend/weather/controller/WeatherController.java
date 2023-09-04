@@ -27,8 +27,9 @@ public class WeatherController {
     private final WeatherDto weatherDto;
     private final WeatherService weatherService;
 
-    public List<String> tmnAndTmxData;
+    public Map<String, String> transformedData;
     public List<WeatherInfoDto> currentTimeData;
+
     @GetMapping("/today")
     public ResponseEntity<BaseResponse> getTodayWeather() { // 오늘 현재 시간대
         try {
@@ -48,8 +49,9 @@ public class WeatherController {
             String jsonString = weatherService.getWeatherInfo(weatherDto);
             weatherService.isJson(jsonString);
             List<WeatherInfoDto> infoList = weatherService.ParsingJson(jsonString);
+
             currentTimeData = weatherService.filterCurrentTimeData(infoList, weatherDto);
-            tmnAndTmxData = weatherService.filterTMNandTMXData(infoList, weatherDto);
+            transformedData = weatherService.transformWeatherData(infoList, currentTimeData, weatherDto);
 
             return new BaseResponse<>(infoList).convert();
         } catch (BaseException e) {
@@ -57,13 +59,29 @@ public class WeatherController {
         }
     }
 
-    @GetMapping("/tmps")
-    public ResponseEntity<BaseResponse> getTemperatures() { // 3일치 온도 가져오기
+    @GetMapping("/data")
+    public ResponseEntity<BaseResponse> getTMNandTMXData() {
         try {
             String jsonString = weatherService.getWeatherInfo(weatherDto);
             weatherService.isJson(jsonString);
             List<WeatherInfoDto> infoList = weatherService.ParsingJson(jsonString);
-            List<WeatherInfoDto> temperatureData = weatherService.filterCurrentTimeAndSpecifiedDateData(infoList, "1500");
+            List<WeatherInfoDto> todayData = weatherService.filterCurrentTimeData(infoList, weatherDto);
+
+            transformedData = weatherService.transformWeatherData(infoList, todayData, weatherDto);
+
+            return new BaseResponse<>(transformedData).convert();
+        } catch (BaseException e) {
+            return new BaseResponse<>(e.getStatus()).convert();
+        }
+    }
+
+    @GetMapping("/tmps")
+    public ResponseEntity<BaseResponse> getTemperatures() { // 3일치 온도&하늘상태 가져오기
+        try {
+            String jsonString = weatherService.getWeatherInfo(weatherDto);
+            weatherService.isJson(jsonString);
+            List<WeatherInfoDto> infoList = weatherService.ParsingJson(jsonString);
+            List<Map<String, String>> temperatureData = weatherService.filterCurrentTimeAndSpecifiedDateData(infoList, "1500");
 
             return new BaseResponse<>(temperatureData).convert();
         } catch (BaseException e) {
@@ -72,7 +90,7 @@ public class WeatherController {
     }
 
     @GetMapping("/times")
-    public ResponseEntity<BaseResponse> getNextHoursWeather() {
+    public ResponseEntity<BaseResponse> getNextHoursWeather() { // 시간대별 온도&하늘상태 가져오기
         try {
             String jsonString = weatherService.getWeatherInfo(weatherDto);
             weatherService.isJson(jsonString);
