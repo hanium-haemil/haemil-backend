@@ -5,7 +5,6 @@ import com.haemil.backend.global.exception.BaseException;
 import com.haemil.backend.map.service.MapService;
 import com.haemil.backend.schedule.dto.ScheduleRequestDto;
 import com.haemil.backend.schedule.dto.ScheduleResponseDto;
->>>>>>> 3911116 ([FEAT] add schedule api)
 import com.haemil.backend.schedule.entity.Schedule;
 import com.haemil.backend.schedule.service.ScheduleService;
 import lombok.extern.slf4j.Slf4j;
@@ -32,20 +31,6 @@ public class ScheduleController {
         this.mapService = mapService;
     }
 
-<<<<<<< HEAD
-    //클라이언트의 요청을 처리하는 컨트롤러 메서드
-    @PostMapping //@PostMapping 애너테이션을 통해 HTTP POST 요청을 수신
-    public Schedule saveSchedule(@RequestBody Schedule schedule){
-        //@RequestBody 애너테이션을 사용하여 요청 본문에 있는 데이터를 Schedule 객체로 변환함
-        return scheduleService.saveSchedule(schedule);
-        //scheduleService.saveSchedule(schedule)을 호출하여 일정을 저장하고,
-        //업데이트된 schedule 객체를 반환
-    }
-
-
-
-
-=======
     //일정 추가 API
     @PostMapping("/schedule")
     public ResponseEntity<BaseResponse> createSchedule(@RequestBody ScheduleRequestDto scheduleRequestDto) {

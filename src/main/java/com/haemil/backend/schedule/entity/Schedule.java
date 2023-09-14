@@ -15,17 +15,10 @@ import java.time.LocalTime;
 @Getter
 @NoArgsConstructor
 public class Schedule {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
-    //일정 생성(year, month, day)
-    @Column(name = "creationDate", nullable = false)
-    private LocalDate creationDate;
-
-    //일정 수정(year, month, day)
-    @Column(name = "modificationDate", nullable = false)
-    private LocalDate modificationDate;
 
     //일정의 실제 날짜 정보(year, month, day)
     @Column(nullable = false)
@@ -43,24 +36,22 @@ public class Schedule {
     @Column(nullable = false, length = 100)
     private String content;
 
+    //일정 완료 여부
+    @Column(nullable = false)
+    private Boolean done;
+
     //장소
     @Column(nullable = true, length = 50)
     private String place;
 
-    //중요 일정
-    @Column(nullable = false)
-    private Boolean important_schedule;
+    //약
+    @Column(nullable = true, length = 50)
+    private String medicine;
 
-    //고정 일정
+    //반복 routine
+    @Enumerated(value = EnumType.STRING)
     @Column(nullable = false)
-    private Boolean fixed_schedule;
-
-    public Boolean isImportant(){
-        return important_schedule;
-    }
-    public Boolean isFixed(){
-        return fixed_schedule;
-    }
+    private RepeatType repeatType;
 
     private String mapUrl;
 
