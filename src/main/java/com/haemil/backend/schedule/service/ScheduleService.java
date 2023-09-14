@@ -1,13 +1,10 @@
 package com.haemil.backend.schedule.service;
 
-<<<<<<< HEAD
-=======
 import com.haemil.backend.global.exception.BaseException;
 import com.haemil.backend.global.exception.MissingRequiredFieldException;
 import com.haemil.backend.schedule.dto.ScheduleRequestDto;
 import com.haemil.backend.schedule.dto.ScheduleResponseDto;
 import com.haemil.backend.schedule.entity.RepeatType;
->>>>>>> 3911116 ([FEAT] add schedule api)
 import com.haemil.backend.schedule.entity.Schedule;
 import com.haemil.backend.schedule.repository.ScheduleRepository;
 //import com.haemil.backend.schedule.repository.SpringDataJpaScheduleRepository;
@@ -31,31 +28,14 @@ import java.util.Optional;
 
 //Schedule 객체를 저장하고 조회하는 기능을 구현
 //ScheduleRepository를 사용하여 데이터베이스와 상호작용
-<<<<<<< HEAD
-
-=======
 @Slf4j
 @Transactional
->>>>>>> 3911116 ([FEAT] add schedule api)
 public class ScheduleService {
     private final ScheduleRepository scheduleRepository;
 
-    public ScheduleService(ScheduleRepository scheduleRepository){
+    public ScheduleService(ScheduleRepository scheduleRepository) {
         this.scheduleRepository = scheduleRepository;
     }
-    //일정 생성
-<<<<<<< HEAD
-    public Schedule createSchedule(LocalDate createdDate, DayOfWeek dayOfWeek,
-                                   String content, boolean important_schedule,
-                                   boolean fixed_schedule, LocalTime time, String place) {
-        Schedule schedule = new Schedule();
-        schedule.setCreationDate(createdDate);
-        schedule.setDayOfWeek(dayOfWeek);
-        schedule.setContent(content);
-        schedule.setImportant_schedule(important_schedule);
-        schedule.setFixed_schedule(fixed_schedule);
-        schedule.setTime(time);
-        schedule.setPlace(place);
 
     //일정 생성
     public ScheduleResponseDto createSchedule(ScheduleRequestDto scheduleRequestDto) throws BaseException {
@@ -143,7 +123,6 @@ public class ScheduleService {
         }
     }
 
->>>>>>> 3911116 ([FEAT] add schedule api)
     //일정 삭제
     @Transactional
     public Long deleteSchedule(Long scheduleId) throws BaseException {
@@ -159,13 +138,6 @@ public class ScheduleService {
 
             throw new BaseException(ResponseStatus.NOT_FOUND);
         }
-    }
-
-    //오늘에 해당하는 일정 조회
-    public List<Schedule> getTodaySchedules(){
-        LocalDate today = LocalDate.now();
-        DayOfWeek dayOfWeek = today.getDayOfWeek();
-        return scheduleRepository.findByLocalDate(today);
     }
 
     //일정 수정
