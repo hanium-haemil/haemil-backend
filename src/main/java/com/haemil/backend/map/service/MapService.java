@@ -30,13 +30,13 @@ public class MapService {
             String address = reqLocation;
             String addr = URLEncoder.encode(address, "UTF-8");
 
-            log.debug("address = {}", address);
+//            log.debug("address = {}", address);
 
             // Geocoding 개요에 나와있는 API URL 입력.
             String apiURL = "https://dapi.kakao.com/v2/local/search/keyword.json?page=1&size=1&sort=accuracy&query="+addr;
 
             URL url = new URL(apiURL);
-            log.debug("url = {}", url);
+//            log.debug("url = {}", url);
             HttpURLConnection con = (HttpURLConnection) url.openConnection();
             con.setRequestMethod("GET");
 

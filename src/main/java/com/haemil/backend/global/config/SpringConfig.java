@@ -7,26 +7,14 @@ import org.springframework.context.annotation.Configuration;
 
 @Configuration
 public class SpringConfig {
-<<<<<<< HEAD
-    private final ScheduleRepository scheduleRepository;
-
-    public SpringConfig(ScheduleRepository scheduleRepository){
-        this.scheduleRepository = scheduleRepository;
-    }
-
-=======
 
     private final ScheduleRepository scheduleRepository;
 
     public SpringConfig(ScheduleRepository scheduleRepository) {this.scheduleRepository = scheduleRepository;}
->>>>>>> main
     @Bean
     public ScheduleService scheduleService(){
         return new ScheduleService(scheduleRepository);
     }
-<<<<<<< HEAD
-=======
 
 
->>>>>>> main
 }

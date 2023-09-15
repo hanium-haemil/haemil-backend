@@ -19,6 +19,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.client.RestTemplate;
 
+import javax.servlet.http.HttpServletRequest;
 import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URLEncoder;
@@ -31,20 +32,20 @@ public class LocationService {
     @Value("${api.hj-kakao-key}")
     String serviceKey;
 
-    public String getLocationInfo(@RequestBody ReqCoordDto reqCoordDto) throws BaseException {
+    public String getLocationInfo(HttpServletRequest request) throws BaseException {
         String responseBody;
         try {
-            String latitude = reqCoordDto.getLatitude();
-            String longitude = reqCoordDto.getLongitude();
+            String latitude = request.getParameter("latitude");
+            String longitude = request.getParameter("longitude");
+//            log.info("location - latitude = {}", latitude);
+//            log.info("location - longitude = {}", longitude);
 
             HttpHeaders headers = new HttpHeaders();
             headers.add("Authorization", "KakaoAK " + serviceKey);
 
-//            log.debug("serviceKey: " + serviceKey);
-
             StringBuilder urlBuilder = new StringBuilder("https://dapi.kakao.com/v2/local/geo/coord2regioncode.json");
-            urlBuilder.append("?"+ URLEncoder.encode("x", "UTF-8")+"="+URLEncoder.encode(latitude, "UTF-8"));
-            urlBuilder.append("&"+ URLEncoder.encode("y", "UTF-8")+"="+URLEncoder.encode(longitude, "UTF-8"));
+            urlBuilder.append("?"+ URLEncoder.encode("x", "UTF-8")+"="+URLEncoder.encode(longitude, "UTF-8"));
+            urlBuilder.append("&"+ URLEncoder.encode("y", "UTF-8")+"="+URLEncoder.encode(latitude, "UTF-8"));
 
             URI url = new URI(urlBuilder.toString());
             RequestEntity<?> requestEntity = new RequestEntity<>(headers, HttpMethod.GET, url);

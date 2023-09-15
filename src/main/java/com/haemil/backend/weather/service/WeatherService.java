@@ -198,32 +198,21 @@ public class WeatherService {
     }
 
 
-    public List<Map<String, String>> filterNextData(List<WeatherInfoDto> weatherInfoDtoList, int numDataPoints) {
+    public List<Map<String, String>> filterNextData(List<WeatherInfoDto> weatherInfoDtoList, LocalTime startTime, int numDataPoints) {
         List<Map<String, String>> filteredList = new ArrayList<>();
 
-        LocalTime currentTime = LocalTime.now();
         DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("HH00");
-        String formattedCurrentTime = currentTime.format(timeFormatter);
 
         for (int i = 0; i < numDataPoints; i++) {
-            LocalTime nextTime = currentTime.plusHours(i);
+            LocalTime nextTime = startTime.plusHours(i);
             String formattedNextTime = nextTime.format(timeFormatter);
 
             Map<String, String> dataPoint = new HashMap<>();
             boolean hasTmp = false;
             boolean hasSky = false;
 
-            String fcstDate;
-            String fcstTime;
-
-            if (nextTime.getHour() < currentTime.getHour()) {
-                LocalDate nextDay = LocalDate.now().plusDays(1);
-                fcstDate = nextDay.format(DateTimeFormatter.ofPattern("yyyyMMdd"));
-                fcstTime = String.format("%02d00", nextTime.getHour());
-            } else {
-                fcstDate = weatherInfoDtoList.get(0).getFcstDate();
-                fcstTime = String.format("%02d00", nextTime.getHour());
-            }
+            String fcstDate = LocalDate.now().format(DateTimeFormatter.ofPattern("yyyyMMdd")); // 현재 날짜를 사용
+            String fcstTime = formattedNextTime;
 
             for (WeatherInfoDto weatherInfoDto : weatherInfoDtoList) {
                 String category = weatherInfoDto.getCategory();
@@ -250,6 +239,5 @@ public class WeatherService {
 
         return filteredList;
     }
-
 
 }

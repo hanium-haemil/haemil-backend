@@ -62,15 +62,23 @@ public class PrepareService {
             PrePareInfoDto prePareInfoDto = new PrePareInfoDto();
 
             prePareInfoDto.setPm10value(prepareDto.getPm10value());
+//            log.info("pm10value = {}", prepareDto.getPm10value());
+
             prePareInfoDto.setClothes(getClothesValue(prepareDto.getMaxTemp(), prepareDto.getMinTemp(), prepareDto.getTmp()));
+//            log.info("clothes = {}", getClothesValue(prepareDto.getMaxTemp(), prepareDto.getMinTemp(), prepareDto.getTmp()));
+
             prePareInfoDto.setFeel_like(prepareDto.getFeelLike());
+//            log.info("feellike = {}", prepareDto.getFeelLike());
             prePareInfoDto.setUv(getUvStatus(prepareDto));
+//            log.info("uv = {}", getUvStatus(prepareDto));
 
             int percent = getPercentValue(prepareDto);
             prePareInfoDto.setPercent(percent);
+//            log.info("percent = {}", percent);
 
             String result = getResultValue(percent);
             prePareInfoDto.setResult(result);
+//            log.info("result = {}", result);
 
             prePareInfoDtoList.add(prePareInfoDto);
         }
@@ -117,10 +125,22 @@ public class PrepareService {
 
     // 마스크 착용 여부를 판단하는 메서드
     private String getMaskValue(String pm10grade, String pm25grade) {
-        // 미세먼지 + 초미세먼지 의 평균으로 비교
-        int pm10gradeInt = Integer.parseInt(pm10grade);
-        int pm25gradeInt = Integer.parseInt(pm25grade);
-        double result = (pm10gradeInt + pm25gradeInt) / 2;
+        double result = 0.0;
+
+        if (pm10grade != "null" && pm25grade != "null") {
+            // 미세먼지 + 초미세먼지 의 평균으로 비교
+            int pm10gradeInt = Integer.parseInt(pm10grade);
+            int pm25gradeInt = Integer.parseInt(pm25grade);
+            result = (pm10gradeInt + pm25gradeInt) / 2;
+        }
+        else if (pm10grade == "null" && pm25grade != "null") {
+            int pm25gradeInt = Integer.parseInt(pm25grade);
+            result = pm25gradeInt;
+        }
+        else if (pm25grade == "null" && pm10grade != "null") {
+            int pm10gradeInt = Integer.parseInt(pm10grade);
+            result = pm10gradeInt;
+        }
 
         if (result < 2)
             return "자율";
@@ -192,9 +212,7 @@ public class PrepareService {
             int temperature = Integer.parseInt(prepareDto.getTmp()); // 기온
             int precipitationProbability = Integer.parseInt(prepareDto.getPop()); // 강수확률
             int humidity = Integer.parseInt(prepareDto.getReh()); // 습도
-            int pm10 = Integer.parseInt(prepareDto.getPm10grade()); // 미세먼지 등급
-            int pm25 = Integer.parseInt(prepareDto.getPm25grade()); // 초미세먼지 등급
-            String airQuality = airQualityScore(pm10, pm25); // 대기질 등급 계산
+            String airQuality = airQualityScore(prepareDto.getPm10grade(), prepareDto.getPm25grade()); // 대기질 등급 계산
 
             // Temperature calculation
             if (temperature >= 20 && temperature <= 25) {
@@ -278,29 +296,35 @@ public class PrepareService {
         return percentValue;
     }
 
-    private String airQualityScore(int pm10, int pm25) {
+    private String airQualityScore(String pm10S, String pm25S) {
         int pmScore = 0;
 
-        // PM10 점수 계산
-        if (pm10 >= 0 && pm10 <= 30) {
-            pmScore += 10;
-        } else if (pm10 >= 31 && pm10 <= 80) {
-            pmScore += 0;
-        } else if (pm10 >= 81 && pm10 <= 150) {
-            pmScore -= 5;
-        } else if (pm10 >= 151) {
-            pmScore -= 10;
+        if (pm10S != "null") {
+            int pm10 = Integer.parseInt(pm10S);
+            // PM10 점수 계산
+            if (pm10 >= 0 && pm10 <= 30) {
+                pmScore += 10;
+            } else if (pm10 >= 31 && pm10 <= 80) {
+                pmScore += 0;
+            } else if (pm10 >= 81 && pm10 <= 150) {
+                pmScore -= 5;
+            } else if (pm10 >= 151) {
+                pmScore -= 10;
+            }
         }
 
-        // PM2.5 점수 계산
-        if (pm25 >= 0 && pm25 <= 15) {
-            pmScore += 10;
-        } else if (pm25 >= 16 && pm25 <= 35) {
-            pmScore += 0;
-        } else if (pm25 >= 36 && pm25 <= 75) {
-            pmScore -= 5;
-        } else if (pm25 >= 76) {
-            pmScore -= 10;
+        if (pm25S != "null") {
+            int pm25 = Integer.parseInt(pm25S);
+            // PM2.5 점수 계산
+            if (pm25 >= 0 && pm25 <= 15) {
+                pmScore += 10;
+            } else if (pm25 >= 16 && pm25 <= 35) {
+                pmScore += 0;
+            } else if (pm25 >= 36 && pm25 <= 75) {
+                pmScore -= 5;
+            } else if (pm25 >= 76) {
+                pmScore -= 10;
+            }
         }
 
         // 대기질 점수 계산

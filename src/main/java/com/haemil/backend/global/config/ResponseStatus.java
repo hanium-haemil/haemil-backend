@@ -24,7 +24,6 @@ public enum ResponseStatus {
     INVALID_TOKEN(false, 473, "Authorization header에 잘못된 토큰을 입력하였습니다."),
     INVALID_AUTH(false, 474, "잘못된 Authorization 입니다."),
 
-    MISSING_REQUIRED_FIELD(400, HttpStatus.Series.CLIENT_ERROR, "Required field(s) are missing"),
     // --- 5xx Server Error ---
     INTERNAL_SERVER_ERROR(500,HttpStatus.Series.SERVER_ERROR, "Internal Server Error"),
     BAD_GATEWAY(502,HttpStatus.Series.SERVER_ERROR, "Bad Gateway"),

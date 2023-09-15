@@ -5,10 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.haemil.backend.global.config.BaseException;
 import com.haemil.backend.global.config.BaseResponse;
 import com.haemil.backend.global.config.ResponseStatus;
-import com.haemil.backend.prepare.dto.PrePareInfoDto;
-import com.haemil.backend.prepare.dto.PrepareDto;
-import com.haemil.backend.prepare.dto.PrepareNeedInfoDto;
-import com.haemil.backend.prepare.dto.PrepareWeatherDto;
+import com.haemil.backend.prepare.dto.*;
 import com.haemil.backend.prepare.service.PrepareService;
 import com.haemil.backend.weather.controller.AirController;
 import com.haemil.backend.weather.controller.LivingController;
@@ -22,6 +19,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import javax.servlet.http.HttpServletRequest;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -36,19 +34,21 @@ public class PrepareController {
     private final WeatherController weatherController;
     private final LivingController livingController;
     private final AirController airController;
-    private final ObjectMapper objectMapper; // ObjectMapper 주입
 
-    private PrepareDto fetchDataAndProcess() throws BaseException {
-        ResponseEntity<BaseResponse> weatherResponse = weatherController.sendGetRequest();
+    private PrepareDto fetchDataAndProcess(HttpServletRequest request) throws BaseException {
+        String latitude = request.getParameter("latitude");
+        String longitude = request.getParameter("longitude");
+
+        ResponseEntity<BaseResponse> weatherResponse = weatherController.sendGetRequest(request);
+
         List<WeatherInfoDto> todayTemps = weatherController.currentTimeData;
+        Map<String, String> temps = weatherController.transformedData; // 최고 최저 온도
 
-        ResponseEntity<BaseResponse> airResponse = airController.sendGetRequest();
+        ResponseEntity<BaseResponse> airResponse = airController.sendGetRequest(request);
         List<AirInfoDto> todayAirs = airController.infoList;
 
-        ResponseEntity<BaseResponse> livingResponse = livingController.sendGetRequest();
+        ResponseEntity<BaseResponse> livingResponse = livingController.sendGetRequest(request);
         List<LivingInfoDto> todayLivings = livingController.infoList;
-
-        Map<String, String> temps = weatherController.transformedData; // 최고 최저 온도
 
         PrepareDto prepareDto = new PrepareDto(todayTemps, todayAirs, temps, todayLivings);
         prepareService.filterWeatherData(todayTemps, prepareDto);
@@ -58,9 +58,9 @@ public class PrepareController {
     }
 
     @GetMapping("/send")
-    public ResponseEntity<BaseResponse> sendGetRequest() {
+    public ResponseEntity<BaseResponse> sendGetRequest(HttpServletRequest request) {
         try {
-            PrepareDto prepareDto = fetchDataAndProcess();
+            PrepareDto prepareDto = fetchDataAndProcess(request);
 
             List<PrepareDto> prepareDtoList = new ArrayList<>();
             prepareDtoList.add(prepareDto);
@@ -75,9 +75,9 @@ public class PrepareController {
     }
 
     @GetMapping("/weather")
-    public ResponseEntity<BaseResponse> sendWeatherInfo() {
+    public ResponseEntity<BaseResponse> sendWeatherInfo(HttpServletRequest request) {
         try {
-            PrepareDto prepareDto = fetchDataAndProcess();
+            PrepareDto prepareDto = fetchDataAndProcess(request);
 
             List<PrepareDto> prepareDtoList = new ArrayList<>();
             prepareDtoList.add(prepareDto);
@@ -92,9 +92,9 @@ public class PrepareController {
     }
 
     @GetMapping("/need")
-    public ResponseEntity<BaseResponse> sendNeedInfo() {
+    public ResponseEntity<BaseResponse> sendNeedInfo(HttpServletRequest request) {
         try {
-            PrepareDto prepareDto = fetchDataAndProcess();
+            PrepareDto prepareDto = fetchDataAndProcess(request);
 
             List<PrepareDto> prepareDtoList = new ArrayList<>();
             prepareDtoList.add(prepareDto);
@@ -104,7 +104,7 @@ public class PrepareController {
 
             return new BaseResponse<>(resultString).convert();
         } catch(BaseException e) {
-            return new BaseResponse<>(e.getStatus()).convert();
+            return  new BaseResponse<>(e.getStatus()).convert();
         }
     }
 }
