@@ -6,6 +6,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.haemil.backend.global.config.BaseException;
 import com.haemil.backend.global.config.ResponseStatus;
 import com.haemil.backend.weather.dto.StationDto;
+import com.haemil.backend.weather.dto.TransferDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import lombok.extern.slf4j.Slf4j;
@@ -13,6 +14,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
+import javax.servlet.http.HttpServletRequest;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 
@@ -28,13 +30,13 @@ public class StationService {
 
     private final StationDto stationDto;
 
-    public String getStationInfo() throws BaseException {
+    public String getStationInfo(TransferDto transferDto) throws BaseException {
         String responseBody;
         try {
             String apiUrl = stationDto.getApiUrl();
             String returnType = stationDto.getReturnType();
-            String tmX = transferService.getTmInfo(transferService.getTransferInfo()).getTmX(); // 받아오기 by TransferService
-            String tmY = transferService.getTmInfo(transferService.getTransferInfo()).getTmY(); // 받아오기 by TransferService
+            String tmX = transferService.getTmInfo(transferService.getTransferInfo(transferDto)).getTmX(); // 받아오기 by TransferService
+            String tmY = transferService.getTmInfo(transferService.getTransferInfo(transferDto)).getTmY(); // 받아오기 by TransferService
 
             StringBuilder urlBuilder = new StringBuilder(apiUrl);
             urlBuilder.append("?"+ URLEncoder.encode("serviceKey", "UTF-8")+"="+serviceKey);

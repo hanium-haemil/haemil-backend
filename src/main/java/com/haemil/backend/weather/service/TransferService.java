@@ -5,7 +5,9 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.haemil.backend.global.config.BaseException;
 import com.haemil.backend.global.config.ResponseStatus;
+import com.haemil.backend.weather.controller.AirController;
 import com.haemil.backend.weather.dto.StationDto;
+import com.haemil.backend.weather.dto.TransferDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import lombok.extern.slf4j.Slf4j;
@@ -16,6 +18,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
+import javax.servlet.http.HttpServletRequest;
 import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URLEncoder;
@@ -27,12 +30,16 @@ public class TransferService {
     private final RestTemplate restTemplate;
     @Value("${api.hj-kakao-key}")
     String serviceKey;
+    AirController airController;
 
-    public String getTransferInfo() throws BaseException {
+    public String getTransferInfo(TransferDto transferDto2) throws BaseException {
         String responseBody;
+
+        TransferDto transferDto = transferDto2;
+
         try {
-            String x = "126.57740680000002"; // 임의 nx
-            String y = "33.453357700000005"; // 임의 ny
+            String x = transferDto.getY();
+            String y = transferDto.getX();
             String input_coord = "WGS84";
             String output_coord = "TM";
 
@@ -68,6 +75,7 @@ public class TransferService {
     // tmX , tmY -> Station 으로 넘기기
     public StationDto getTmInfo(String responseBody) throws BaseException {
         try {
+//            log.debug("transfer - tminfo = {}", responseBody);
             StationDto stationDto = new StationDto();
             ObjectMapper objectMapper = new ObjectMapper();
 
@@ -83,16 +91,6 @@ public class TransferService {
             return stationDto;
         } catch (JsonProcessingException e) {
             throw new BaseException(ResponseStatus.CANNOT_CONVERT_JSON);
-        }
-    }
-
-    public boolean isJson(String jsonString) throws BaseException {
-        boolean isJson = jsonString.startsWith("{") && jsonString.endsWith("}");
-
-        if (!isJson) {
-            throw new BaseException(ResponseStatus.INVALID_XML_FORMAT);
-        } else {
-            return true;
         }
     }
 }
