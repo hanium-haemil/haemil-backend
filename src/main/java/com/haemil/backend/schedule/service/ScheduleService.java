@@ -7,20 +7,13 @@ import com.haemil.backend.schedule.dto.ScheduleResponseDto;
 import com.haemil.backend.schedule.entity.RepeatType;
 import com.haemil.backend.schedule.entity.Schedule;
 import com.haemil.backend.schedule.repository.ScheduleRepository;
-//import com.haemil.backend.schedule.repository.SpringDataJpaScheduleRepository;
-import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import com.haemil.backend.global.config.ResponseStatus;
 
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalTime;
-import java.time.format.DateTimeFormatter;
-import java.time.format.DateTimeParseException;
 import java.util.List;
 import java.util.Optional;
 
@@ -162,7 +155,6 @@ public class ScheduleService {
             // 여기서 중복 일정 검사를 수행하고 이미 존재하는 경우 예외를 던짐
             List<Schedule> existingSchedules = scheduleRepository.findByLocalDate(newLocalDate);
             for (Schedule existingSchedule : existingSchedules) {
-                System.out.println("existingSchedule: " + existingSchedule);
                 if (
                         existingSchedule.getDayOfWeek() == newDayOfWeek &&
                                 existingSchedule.getTime().equals(newTime) &&
@@ -182,8 +174,6 @@ public class ScheduleService {
             schedule.setPlace(newPlace);
             schedule.setRepeatType(newRepeatType);
             schedule.setMedicine(newMedicine);
-
-            log.debug("newContent = {}", newContent);
 
             return scheduleRepository.save(schedule);
 
