@@ -2,7 +2,7 @@ package com.haemil.backend.schedule.controller;
 
 import com.haemil.backend.global.config.BaseResponse;
 import com.haemil.backend.global.exception.BaseException;
-import com.haemil.backend.map.service.MapService;
+import com.haemil.backend.schedule.service.MapService;
 import com.haemil.backend.schedule.dto.ScheduleRequestDto;
 import com.haemil.backend.schedule.dto.ScheduleResponseDto;
 import com.haemil.backend.schedule.entity.Schedule;
@@ -39,13 +39,13 @@ public class ScheduleController {
             ScheduleResponseDto createSchedule = scheduleService.createSchedule(scheduleRequestDto);
 
             // 맵 API 호출하여 맵 URL 얻어오는 부분
-            String mapUrl = mapService.getMapUrl(scheduleRequestDto.getPlace());
+            String mapUrlString = mapService.getMapUrl(scheduleRequestDto.getPlace());
+
             // 응답에 맵 URL을 포함하여 리턴
-            createSchedule.setMapUrl(mapUrl);
+            createSchedule.setMapUrl(mapUrlString);
 
             BaseResponse<ScheduleResponseDto> response = new BaseResponse<>(createSchedule);
             return response.convert();
-
         } catch (BaseException e) {
             return new BaseResponse<>(e.getStatus()).convert();
         } catch (com.haemil.backend.global.config.BaseException e) {
@@ -101,11 +101,10 @@ public class ScheduleController {
             log.debug("requestDto.getPlace() = {}",requestDto.getPlace());
 
             // 맵 API 호출하여 맵 URL 얻어오는 부분
-            String mapUrl = mapService.getMapUrl(requestDto.getPlace());
+            String mapUrlString = mapService.getMapUrl(requestDto.getPlace());
 
             // 응답에 맵 URL을 포함하여 리턴
-            updateSchedule.setMapUrl(mapUrl);
-            System.out.println(mapUrl);
+            updateSchedule.setMapUrl(mapUrlString);
 
             ScheduleResponseDto responseDto = new ScheduleResponseDto(updateSchedule);
             BaseResponse<ScheduleResponseDto> response = new BaseResponse<>(responseDto);
