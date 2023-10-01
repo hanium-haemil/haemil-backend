@@ -3,6 +3,7 @@ package com.haemil.backend.weather.service;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.haemil.backend.alert.dto.ReqCoordDto;
 import com.haemil.backend.global.config.BaseException;
 import com.haemil.backend.global.config.ResponseStatus;
 import com.haemil.backend.weather.dto.AirDto;
@@ -16,6 +17,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
+import javax.servlet.http.HttpServletRequest;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.util.ArrayList;
@@ -53,8 +55,6 @@ public class LivingService {
 
             responseBody = response.getBody();
 
-//            log.info("Living _ urlBuilder: " + urlBuilder);
-//            log.info("Living _ responseBody: " + responseBody);
         } catch (UnsupportedEncodingException e) {
             log.debug("UnsupportedEncodingException 발생 ");
             throw new BaseException(ResponseStatus.UNSUPPORTED_ENCODING);
@@ -64,13 +64,18 @@ public class LivingService {
 
     private final LocationService locationService;
     // 자외선
-    public String getUVInfo(LivingDto livingDto) throws BaseException {
+    public String getUVInfo(LivingDto livingDto, HttpServletRequest request) throws BaseException {
         String responseBody;
         try {
             String apiUrl = livingDto.getApiUrlUV();
             String dataType = livingDto.getDataType();
-//            String areaNo = locationService.getLocation(locationService.getLocationInfo()).getAreaNo();
-            String areaNo = "1100000000";
+            String areaNo = locationService.getLocation(locationService.getLocationInfo(request)).getAreaNo();
+
+            if (areaNo.length() >= 2) {
+                String modifiedAreaNo = areaNo.substring(0, areaNo.length() - 5) + "00000";
+//                locationService.getLocation(locationService.getLocationInfo(request)).setAreaNo(modifiedAreaNo);
+                areaNo = modifiedAreaNo;
+            }
             String numOfRows = livingDto.getNumOfRows();
             String pageNo = livingDto.getPageNo();
             String time = livingDto.getTime();

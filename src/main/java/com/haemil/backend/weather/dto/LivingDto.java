@@ -10,8 +10,8 @@ import java.time.format.DateTimeFormatter;
 public class LivingDto {
     // 체감 온도
     private final String apiUrl = "https://api.openweathermap.org/data/2.5/weather";
-    private final String lat = "55";
-    private final String lon = "127";
+    private String lat;
+    private String lon;
     private final String lang = "kr";
     private final String units = "metric";
 
