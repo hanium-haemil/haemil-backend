@@ -18,8 +18,8 @@ public class WeatherDto {
     private final String base_date;
     private final String base_time = "0200";
     private final String current_time;
-    private final String nx = "55";
-    private final String ny = "127";
+    private String nx;
+    private String ny;
 
     public WeatherDto() {
         LocalDate today = LocalDate.now();

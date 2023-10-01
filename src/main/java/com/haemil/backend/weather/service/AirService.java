@@ -7,6 +7,7 @@ import com.haemil.backend.global.config.BaseException;
 import com.haemil.backend.global.config.ResponseStatus;
 import com.haemil.backend.weather.dto.AirDto;
 import com.haemil.backend.weather.dto.AirInfoDto;
+import com.haemil.backend.weather.dto.TransferDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import lombok.extern.slf4j.Slf4j;
@@ -14,6 +15,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
+import javax.servlet.http.HttpServletRequest;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.util.ArrayList;
@@ -28,14 +30,15 @@ public class AirService {
     @Value("${api.hj-secret-key}")
     String serviceKey;
 
-    public String getAirInfo(AirDto airDto) throws BaseException {
+    public String getAirInfo(AirDto airDto, TransferDto transferDto) throws BaseException {
         String responseBody;
         try {
             String apiUrl = airDto.getApiUrl();
             String returnType = airDto.getReturnType();
             String numOfRows = airDto.getNumOfRows();
             String pageNo = airDto.getPageNo();
-            String stationName = stationService.getStationName(stationService.getStationInfo());
+            String stationName = stationService.getStationName(stationService.getStationInfo(transferDto));
+//            log.info("air - stationName = {}", stationName);
             String dataTerm = airDto.getDataTerm();
             String ver = airDto.getVer();
 

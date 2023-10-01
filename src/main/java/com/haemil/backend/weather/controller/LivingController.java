@@ -12,6 +12,8 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+
+import javax.servlet.http.HttpServletRequest;
 import java.util.List;
 
 @Slf4j
@@ -20,20 +22,41 @@ import java.util.List;
 @RequiredArgsConstructor
 @RequestMapping("/living")
 public class LivingController {
-    private final LivingDto livingDto;
     private final LivingService livingService;
     public List<LivingInfoDto> infoList = null;
 
+//    public LocationDto locationDto;
+
+    private LivingDto fetchDataAndProcess(HttpServletRequest request) throws BaseException {
+        String latitude = request.getParameter("latitude");
+        String longitude = request.getParameter("longitude");
+
+        double lat = Double.parseDouble(latitude);
+        double lon = Double.parseDouble(longitude);
+
+        latitude = String.format("%.0f", lat);
+        longitude = String.format("%.0f", lon);
+
+        LivingDto livingDto = new LivingDto();
+        livingDto.setLon(longitude);
+        livingDto.setLat(latitude);
+
+        return livingDto;
+    }
+
     @GetMapping("/send")
-    public ResponseEntity<BaseResponse> sendGetRequest() {
+    public ResponseEntity<BaseResponse> sendGetRequest(HttpServletRequest request) {
         try {
+//            this.locationDto = locationDto;
+            LivingDto livingDto = fetchDataAndProcess(request);
+
             // feel like temp
             String jsonString1 = livingService.getLivingTempInfo(livingDto);
 //            log.debug("jsonString : " + jsonString1);
             livingService.isJson(jsonString1);
 
             // uv
-            String jsonString2 = livingService.getUVInfo(livingDto);
+            String jsonString2 = livingService.getUVInfo(livingDto, request);
 //            log.debug("jsonString : " + jsonString2);
             livingService.isJson(jsonString2);
 
