@@ -98,7 +98,6 @@ public class ScheduleController {
     public ResponseEntity<BaseResponse> updateSchedule(@PathVariable Long scheduleId, @RequestBody ScheduleRequestDto requestDto) {
         try {
             Schedule updateSchedule = scheduleService.updateSchedule(scheduleId, requestDto);
-            log.debug("requestDto.getPlace() = {}",requestDto.getPlace());
 
             // 맵 API 호출하여 맵 URL 얻어오는 부분
             String mapUrlString = mapService.getMapUrl(requestDto.getPlace());
