@@ -233,11 +233,8 @@ public class AuthService {
             log.info("에러 발생!");
             throw new IllegalArgumentException("Invalid token in Authorization header");
         }
+
         String token = requestAccessTokenInHeader.substring(7);
-
-        if (token.length() != 203)
-            throw new IllegalArgumentException("Invalid token in Authorization header");
-
         return token;
     }
 }
