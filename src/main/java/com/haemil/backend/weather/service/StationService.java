@@ -14,73 +14,70 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
-import javax.servlet.http.HttpServletRequest;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
-
 
 @Slf4j
 @Service
 @RequiredArgsConstructor
 public class StationService {
-    private final RestTemplate restTemplate;
-    private final TransferService transferService;
-    @Value("${api.hj-secret-key}")
-    String serviceKey;
+  private final RestTemplate restTemplate;
+  private final TransferService transferService;
 
-    private final StationDto stationDto;
+  @Value("${api.hj-secret-key}")
+  String serviceKey;
 
-    public String getStationInfo(TransferDto transferDto) throws BaseException {
-        String responseBody;
-        try {
-            String apiUrl = stationDto.getApiUrl();
-            String returnType = stationDto.getReturnType();
-            String tmX = transferService.getTmInfo(transferService.getTransferInfo(transferDto)).getTmX(); // 받아오기 by TransferService
-            String tmY = transferService.getTmInfo(transferService.getTransferInfo(transferDto)).getTmY(); // 받아오기 by TransferService
+  private final StationDto stationDto;
 
-            StringBuilder urlBuilder = new StringBuilder(apiUrl);
-            urlBuilder.append("?"+ URLEncoder.encode("serviceKey", "UTF-8")+"="+serviceKey);
-            urlBuilder.append("&"+ URLEncoder.encode("returnType", "UTF-8")+"="+URLEncoder.encode(returnType, "UTF-8"));
-            urlBuilder.append("&"+ URLEncoder.encode("tmX", "UTF-8")+"="+tmX);
-            urlBuilder.append("&"+ URLEncoder.encode("tmY", "UTF-8")+"="+tmY);
+  public String getStationInfo(TransferDto transferDto) throws BaseException {
+    String responseBody;
+    try {
+      String apiUrl = stationDto.getApiUrl();
+      String returnType = stationDto.getReturnType();
+      String tmX =
+          transferService
+              .getTmInfo(transferService.getTransferInfo(transferDto))
+              .getTmX(); // 받아오기 by TransferService
+      String tmY =
+          transferService
+              .getTmInfo(transferService.getTransferInfo(transferDto))
+              .getTmY(); // 받아오기 by TransferService
 
-            ResponseEntity<String> response = restTemplate.getForEntity(urlBuilder.toString(), String.class);
+      StringBuilder urlBuilder = new StringBuilder(apiUrl);
+      urlBuilder.append("?" + URLEncoder.encode("serviceKey", "UTF-8") + "=" + serviceKey);
+      urlBuilder.append(
+          "&"
+              + URLEncoder.encode("returnType", "UTF-8")
+              + "="
+              + URLEncoder.encode(returnType, "UTF-8"));
+      urlBuilder.append("&" + URLEncoder.encode("tmX", "UTF-8") + "=" + tmX);
+      urlBuilder.append("&" + URLEncoder.encode("tmY", "UTF-8") + "=" + tmY);
 
-            responseBody = response.getBody();
+      ResponseEntity<String> response =
+          restTemplate.getForEntity(urlBuilder.toString(), String.class);
 
-//            log.info("station_urlBuilder: " + urlBuilder);
-//            log.info("station_responseBody: " + responseBody);
-        } catch (UnsupportedEncodingException e) {
-            log.debug("UnsupportedEncodingException 발생 ");
-            throw new BaseException(ResponseStatus.UNSUPPORTED_ENCODING);
-        }
-        return responseBody;
+      responseBody = response.getBody();
+
+    } catch (UnsupportedEncodingException e) {
+      log.debug("UnsupportedEncodingException 발생 ");
+      throw new BaseException(ResponseStatus.UNSUPPORTED_ENCODING);
     }
+    return responseBody;
+  }
 
-    public String getStationName(String responseBody) throws BaseException {
-        try {
-            ObjectMapper objectMapper = new ObjectMapper();
+  public String getStationName(String responseBody) throws BaseException {
+    try {
+      ObjectMapper objectMapper = new ObjectMapper();
 
-            JsonNode jsonNode = objectMapper.readTree(responseBody);
-            JsonNode itemsNode = jsonNode.get("response").get("body").get("items");
-            JsonNode itemNode = itemsNode.get(0);
+      JsonNode jsonNode = objectMapper.readTree(responseBody);
+      JsonNode itemsNode = jsonNode.get("response").get("body").get("items");
+      JsonNode itemNode = itemsNode.get(0);
 
-            String stationName = itemNode.get("stationName").asText();
+      String stationName = itemNode.get("stationName").asText();
 
-//            log.info("stationName:" + stationName);
-            return stationName;
-        } catch (JsonProcessingException e) {
-            throw new BaseException(ResponseStatus.CANNOT_CONVERT_JSON);
-        }
+      return stationName;
+    } catch (JsonProcessingException e) {
+      throw new BaseException(ResponseStatus.CANNOT_CONVERT_JSON);
     }
-
-    public boolean isJson(String jsonString) throws BaseException {
-        boolean isJson = jsonString.startsWith("{") && jsonString.endsWith("}");
-
-        if (!isJson) {
-            throw new BaseException(ResponseStatus.INVALID_XML_FORMAT);
-        } else {
-            return true;
-        }
-    }
+  }
 }

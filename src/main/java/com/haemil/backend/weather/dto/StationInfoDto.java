@@ -4,5 +4,5 @@ import lombok.Data;
 
 @Data
 public class StationInfoDto {
-    public String stationName; // 측정소명
+  public String stationName; // 측정소명
 }

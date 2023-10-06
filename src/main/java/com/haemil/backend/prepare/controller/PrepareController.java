@@ -1,10 +1,7 @@
 package com.haemil.backend.prepare.controller;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.haemil.backend.global.config.BaseException;
 import com.haemil.backend.global.config.BaseResponse;
-import com.haemil.backend.global.config.ResponseStatus;
 import com.haemil.backend.prepare.dto.*;
 import com.haemil.backend.prepare.service.PrepareService;
 import com.haemil.backend.weather.controller.AirController;
@@ -30,81 +27,75 @@ import java.util.Map;
 @RequiredArgsConstructor
 @RequestMapping("/prepare")
 public class PrepareController {
-    private final PrepareService prepareService;
-    private final WeatherController weatherController;
-    private final LivingController livingController;
-    private final AirController airController;
+  private final PrepareService prepareService;
+  private final WeatherController weatherController;
+  private final LivingController livingController;
+  private final AirController airController;
 
-    private PrepareDto fetchDataAndProcess(HttpServletRequest request) throws BaseException {
-        String latitude = request.getParameter("latitude");
-        String longitude = request.getParameter("longitude");
+  private PrepareDto fetchDataAndProcess(HttpServletRequest request) throws BaseException {
+    ResponseEntity<BaseResponse> weatherResponse = weatherController.sendGetRequest(request);
 
-        ResponseEntity<BaseResponse> weatherResponse = weatherController.sendGetRequest(request);
+    List<WeatherInfoDto> todayTemps = weatherController.currentTimeData;
+    Map<String, String> temps = weatherController.transformedData; // 최고 최저 온도
 
-        List<WeatherInfoDto> todayTemps = weatherController.currentTimeData;
-        Map<String, String> temps = weatherController.transformedData; // 최고 최저 온도
+    ResponseEntity<BaseResponse> airResponse = airController.sendGetRequest(request);
+    List<AirInfoDto> todayAirs = airController.infoList;
 
-        ResponseEntity<BaseResponse> airResponse = airController.sendGetRequest(request);
-        List<AirInfoDto> todayAirs = airController.infoList;
+    ResponseEntity<BaseResponse> livingResponse = livingController.sendGetRequest(request);
+    List<LivingInfoDto> todayLivings = livingController.infoList;
 
-        ResponseEntity<BaseResponse> livingResponse = livingController.sendGetRequest(request);
-        List<LivingInfoDto> todayLivings = livingController.infoList;
+    PrepareDto prepareDto = new PrepareDto(todayTemps, todayAirs, temps, todayLivings);
+    prepareService.filterWeatherData(todayTemps, prepareDto);
+    prepareService.filterAirData(todayAirs, prepareDto);
 
-        PrepareDto prepareDto = new PrepareDto(todayTemps, todayAirs, temps, todayLivings);
-        prepareService.filterWeatherData(todayTemps, prepareDto);
-        prepareService.filterAirData(todayAirs, prepareDto);
+    return prepareDto;
+  }
 
-        return prepareDto;
+  @GetMapping("/send")
+  public ResponseEntity<BaseResponse> sendGetRequest(HttpServletRequest request) {
+    try {
+      PrepareDto prepareDto = fetchDataAndProcess(request);
+
+      List<PrepareDto> prepareDtoList = new ArrayList<>();
+      prepareDtoList.add(prepareDto);
+
+      List<PrePareInfoDto> resultString = prepareService.ParsingJson(prepareDtoList);
+
+      return new BaseResponse<>(resultString).convert();
+    } catch (BaseException e) {
+      return new BaseResponse<>(e.getStatus()).convert();
     }
+  }
 
-    @GetMapping("/send")
-    public ResponseEntity<BaseResponse> sendGetRequest(HttpServletRequest request) {
-        try {
-            PrepareDto prepareDto = fetchDataAndProcess(request);
+  @GetMapping("/weather")
+  public ResponseEntity<BaseResponse> sendWeatherInfo(HttpServletRequest request) {
+    try {
+      PrepareDto prepareDto = fetchDataAndProcess(request);
 
-            List<PrepareDto> prepareDtoList = new ArrayList<>();
-            prepareDtoList.add(prepareDto);
+      List<PrepareDto> prepareDtoList = new ArrayList<>();
+      prepareDtoList.add(prepareDto);
 
-            List<PrePareInfoDto> resultString = prepareService.ParsingJson(prepareDtoList);
-//            log.info("prePare_result = {}", resultString); // 외출 적합도 결과 log
+      List<PrepareWeatherDto> resultString = prepareService.ParsingWeather(prepareDtoList);
 
-            return new BaseResponse<>(resultString).convert();
-        } catch(BaseException e) {
-            return new BaseResponse<>(e.getStatus()).convert();
-        }
+      return new BaseResponse<>(resultString).convert();
+    } catch (BaseException e) {
+      return new BaseResponse<>(e.getStatus()).convert();
     }
+  }
 
-    @GetMapping("/weather")
-    public ResponseEntity<BaseResponse> sendWeatherInfo(HttpServletRequest request) {
-        try {
-            PrepareDto prepareDto = fetchDataAndProcess(request);
+  @GetMapping("/need")
+  public ResponseEntity<BaseResponse> sendNeedInfo(HttpServletRequest request) {
+    try {
+      PrepareDto prepareDto = fetchDataAndProcess(request);
 
-            List<PrepareDto> prepareDtoList = new ArrayList<>();
-            prepareDtoList.add(prepareDto);
+      List<PrepareDto> prepareDtoList = new ArrayList<>();
+      prepareDtoList.add(prepareDto);
 
-            List<PrepareWeatherDto> resultString = prepareService.ParsingWeather(prepareDtoList);
-//            log.info("prePare_weather_result = {}", resultString); // 외출 - 날씨 관련 정보
+      List<PrepareNeedInfoDto> resultString = prepareService.ParsingNeed(prepareDtoList);
 
-            return new BaseResponse<>(resultString).convert();
-        } catch(BaseException e) {
-            return new BaseResponse<>(e.getStatus()).convert();
-        }
+      return new BaseResponse<>(resultString).convert();
+    } catch (BaseException e) {
+      return new BaseResponse<>(e.getStatus()).convert();
     }
-
-    @GetMapping("/need")
-    public ResponseEntity<BaseResponse> sendNeedInfo(HttpServletRequest request) {
-        try {
-            PrepareDto prepareDto = fetchDataAndProcess(request);
-
-            List<PrepareDto> prepareDtoList = new ArrayList<>();
-            prepareDtoList.add(prepareDto);
-
-            List<PrepareNeedInfoDto> resultString = prepareService.ParsingNeed(prepareDtoList);
-//            log.info("prePare_need_result = {}", resultString); // 외출 물품 정보
-
-            return new BaseResponse<>(resultString).convert();
-        } catch(BaseException e) {
-            return  new BaseResponse<>(e.getStatus()).convert();
-        }
-    }
+  }
 }
