@@ -23,34 +23,34 @@ import java.util.List;
 @RequiredArgsConstructor
 @RequestMapping("/air")
 public class AirController {
-    private final AirDto airdto;
-    private final AirService airService;
+  private final AirDto airdto;
+  private final AirService airService;
 
-    public List<AirInfoDto> infoList = null;
+  public List<AirInfoDto> infoList = null;
 
-    public TransferDto fetchDataAndProcess(HttpServletRequest request) throws BaseException {
-        String latitude = request.getParameter("latitude");
-        String longitude = request.getParameter("longitude");
+  public TransferDto fetchDataAndProcess(HttpServletRequest request) throws BaseException {
+    String latitude = request.getParameter("latitude");
+    String longitude = request.getParameter("longitude");
 
-        TransferDto transferDto = new TransferDto();
-        transferDto.setX(latitude);
-        transferDto.setY(longitude);
+    TransferDto transferDto = new TransferDto();
+    transferDto.setX(latitude);
+    transferDto.setY(longitude);
 
-        return transferDto;
+    return transferDto;
+  }
+
+  @GetMapping("/send")
+  public ResponseEntity<BaseResponse> sendGetRequest(HttpServletRequest request) {
+    try {
+      TransferDto transferDto = fetchDataAndProcess(request);
+      String jsonString = airService.getAirInfo(airdto, transferDto);
+
+      airService.isJson(jsonString);
+
+      infoList = airService.ParsingJson(jsonString);
+      return new BaseResponse<>(infoList).convert();
+    } catch (BaseException e) {
+      return new BaseResponse<>(e.getStatus()).convert();
     }
-
-    @GetMapping("/send")
-    public ResponseEntity<BaseResponse> sendGetRequest(HttpServletRequest request) {
-        try {
-            TransferDto transferDto = fetchDataAndProcess(request);
-            String jsonString = airService.getAirInfo(airdto, transferDto);
-
-            airService.isJson(jsonString);
-
-            infoList = airService.ParsingJson(jsonString);
-            return new BaseResponse<>(infoList).convert();
-        } catch (BaseException e) {
-            return new BaseResponse<>(e.getStatus()).convert();
-        }
-    }
+  }
 }

@@ -6,6 +6,6 @@ import org.springframework.stereotype.Component;
 @Data
 @Component
 public class TransferDto {
-    private String x;
-    private String y;
+  private String x;
+  private String y;
 }

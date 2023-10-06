@@ -4,7 +4,6 @@ import com.haemil.backend.global.config.BaseException;
 import com.haemil.backend.global.config.BaseResponse;
 import com.haemil.backend.weather.dto.*;
 import com.haemil.backend.weather.service.LivingService;
-import com.haemil.backend.weather.service.WeatherService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -22,48 +21,43 @@ import java.util.List;
 @RequiredArgsConstructor
 @RequestMapping("/living")
 public class LivingController {
-    private final LivingService livingService;
-    public List<LivingInfoDto> infoList = null;
+  private final LivingService livingService;
+  public List<LivingInfoDto> infoList = null;
 
-//    public LocationDto locationDto;
+  private LivingDto fetchDataAndProcess(HttpServletRequest request) throws BaseException {
+    String latitude = request.getParameter("latitude");
+    String longitude = request.getParameter("longitude");
 
-    private LivingDto fetchDataAndProcess(HttpServletRequest request) throws BaseException {
-        String latitude = request.getParameter("latitude");
-        String longitude = request.getParameter("longitude");
+    double lat = Double.parseDouble(latitude);
+    double lon = Double.parseDouble(longitude);
 
-        double lat = Double.parseDouble(latitude);
-        double lon = Double.parseDouble(longitude);
+    latitude = String.format("%.0f", lat);
+    longitude = String.format("%.0f", lon);
 
-        latitude = String.format("%.0f", lat);
-        longitude = String.format("%.0f", lon);
+    LivingDto livingDto = new LivingDto();
+    livingDto.setLon(longitude);
+    livingDto.setLat(latitude);
 
-        LivingDto livingDto = new LivingDto();
-        livingDto.setLon(longitude);
-        livingDto.setLat(latitude);
+    return livingDto;
+  }
 
-        return livingDto;
+  @GetMapping("/send")
+  public ResponseEntity<BaseResponse> sendGetRequest(HttpServletRequest request) {
+    try {
+      LivingDto livingDto = fetchDataAndProcess(request);
+
+      // feel like temp
+      String jsonString1 = livingService.getLivingTempInfo(livingDto);
+      livingService.isJson(jsonString1);
+
+      // uv
+      String jsonString2 = livingService.getUVInfo(livingDto, request);
+      livingService.isJson(jsonString2);
+
+      infoList = livingService.ParsingJson(jsonString1, jsonString2); // 전체 리스트
+      return new BaseResponse<>(infoList).convert();
+    } catch (BaseException e) {
+      return new BaseResponse<>(e.getStatus()).convert();
     }
-
-    @GetMapping("/send")
-    public ResponseEntity<BaseResponse> sendGetRequest(HttpServletRequest request) {
-        try {
-//            this.locationDto = locationDto;
-            LivingDto livingDto = fetchDataAndProcess(request);
-
-            // feel like temp
-            String jsonString1 = livingService.getLivingTempInfo(livingDto);
-//            log.debug("jsonString : " + jsonString1);
-            livingService.isJson(jsonString1);
-
-            // uv
-            String jsonString2 = livingService.getUVInfo(livingDto, request);
-//            log.debug("jsonString : " + jsonString2);
-            livingService.isJson(jsonString2);
-
-            infoList = livingService.ParsingJson(jsonString1, jsonString2); // 전체 리스트
-            return new BaseResponse<>(infoList).convert();
-        } catch (BaseException e) {
-            return new BaseResponse<>(e.getStatus()).convert();
-        }
-    }
+  }
 }
