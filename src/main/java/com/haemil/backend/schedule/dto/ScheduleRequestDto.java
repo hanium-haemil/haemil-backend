@@ -17,8 +17,6 @@ public class ScheduleRequestDto {
 
     private LocalDate localDate;
 
-    private DayOfWeek dayOfWeek;
-
     private LocalTime time;
 
     private String content;
@@ -26,8 +24,6 @@ public class ScheduleRequestDto {
     private Boolean done;
 
     private String place;
-
-    private String medicine;
 
     private RepeatType repeatType;
 

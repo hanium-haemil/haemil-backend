@@ -15,7 +15,6 @@ import java.util.List;
 import java.util.Optional;
 
 @Primary
-//JpaRepository를 상속받아서 데이터베이스와 상호작용하는 메서드들 제공
 public interface ScheduleRepository extends JpaRepository<Schedule,Long> {
 
     //일정을 조회

@@ -37,10 +37,7 @@ public class ScheduleController {
 
         try {
             ScheduleResponseDto createSchedule = scheduleService.createSchedule(scheduleRequestDto);
-
-            // 맵 API 호출하여 맵 URL 얻어오는 부분
             String mapUrl = mapService.getMapUrl(scheduleRequestDto.getPlace());
-            // 응답에 맵 URL을 포함하여 리턴
             createSchedule.setMapUrl(mapUrl);
 
             BaseResponse<ScheduleResponseDto> response = new BaseResponse<>(createSchedule);
@@ -98,12 +95,9 @@ public class ScheduleController {
     public ResponseEntity<BaseResponse> updateSchedule(@PathVariable Long scheduleId, @RequestBody ScheduleRequestDto requestDto) {
         try {
             Schedule updateSchedule = scheduleService.updateSchedule(scheduleId, requestDto);
-            log.debug("requestDto.getPlace() = {}",requestDto.getPlace());
 
-            // 맵 API 호출하여 맵 URL 얻어오는 부분
             String mapUrl = mapService.getMapUrl(requestDto.getPlace());
 
-            // 응답에 맵 URL을 포함하여 리턴
             updateSchedule.setMapUrl(mapUrl);
             System.out.println(mapUrl);
 

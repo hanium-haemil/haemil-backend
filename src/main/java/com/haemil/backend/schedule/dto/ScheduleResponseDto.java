@@ -23,8 +23,6 @@ public class ScheduleResponseDto {
 
     private LocalDate localDate;
 
-    private DayOfWeek dayOfWeek;
-
     private LocalTime time;
 
     private String content;
@@ -32,8 +30,6 @@ public class ScheduleResponseDto {
     private String place;
 
     private Boolean done;
-
-    private String medicine;
 
     private RepeatType repeatType;
 
@@ -45,8 +41,6 @@ public class ScheduleResponseDto {
 
         this.localDate = schedule.getLocalDate();
 
-        this.dayOfWeek = schedule.getDayOfWeek();
-
         this.time = schedule.getTime();
 
         this.content = schedule.getContent();
@@ -54,8 +48,6 @@ public class ScheduleResponseDto {
         this.place = schedule.getPlace();
 
         this.done = schedule.getDone();
-
-        this.medicine = schedule.getMedicine();
 
         this.repeatType = schedule.getRepeatType();
 

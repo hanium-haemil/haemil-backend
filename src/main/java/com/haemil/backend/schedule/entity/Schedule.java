@@ -24,10 +24,6 @@ public class Schedule {
     @Column(nullable = false)
     private LocalDate localDate;
 
-    //요일
-    @Column(nullable = false)
-    private DayOfWeek dayOfWeek;
-
     //일정 시간(hour, minute, second, nano)
     @Column(nullable = false)
     private LocalTime time;
@@ -43,10 +39,6 @@ public class Schedule {
     //장소
     @Column(nullable = true, length = 50)
     private String place;
-
-    //약
-    @Column(nullable = true, length = 50)
-    private String medicine;
 
     //반복 routine
     @Enumerated(value = EnumType.STRING)
