@@ -17,6 +17,7 @@ import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
+import javax.servlet.http.HttpServletRequest;
 import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -77,9 +78,9 @@ public class AlertService {
     // 임시
     private final LocationService locationService;
 
-    public List<AlertDto> ParsingJson(String responseBody, ReqCoordDto reqCoordDto) throws BaseException {
+    public List<AlertDto> ParsingJson(String responseBody, HttpServletRequest request) throws BaseException {
         try {
-            String fullLocationJsonString = locationService.getLocationInfo(reqCoordDto);
+            String fullLocationJsonString = locationService.getLocationInfo(request);
             String userLocation = ParsingLocation(fullLocationJsonString);
 
             List<AlertDto> alertApiList = new ArrayList<>();

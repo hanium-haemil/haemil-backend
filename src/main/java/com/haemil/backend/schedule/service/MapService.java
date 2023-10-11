@@ -1,4 +1,4 @@
-package com.haemil.backend.map.service;
+package com.haemil.backend.schedule.service;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -30,13 +30,10 @@ public class MapService {
             String address = reqLocation;
             String addr = URLEncoder.encode(address, "UTF-8");
 
-            log.debug("address = {}", address);
-
             // Geocoding 개요에 나와있는 API URL 입력.
             String apiURL = "https://dapi.kakao.com/v2/local/search/keyword.json?page=1&size=1&sort=accuracy&query="+addr;
 
             URL url = new URL(apiURL);
-            log.debug("url = {}", url);
             HttpURLConnection con = (HttpURLConnection) url.openConnection();
             con.setRequestMethod("GET");
 
@@ -64,23 +61,16 @@ public class MapService {
             br.close();
 
             ObjectMapper objectMapper = new ObjectMapper();
-            log.debug("response = {} response.string = {}", response, response.toString());
-
             JsonNode jsonNode = objectMapper.readTree(response.toString());
-            log.debug("jsonNode = {}", jsonNode);
             JsonNode itemsNode = jsonNode.get("documents");
-            log.debug("documents = {}", itemsNode);
 
             if (itemsNode != null && itemsNode.isArray() && itemsNode.size() > 0) {
                 JsonNode firstItem = itemsNode.get(0);
                 String mapx = firstItem.get("y").asText();
                 String mapy = firstItem.get("x").asText();
-
-                log.debug("mapx = {} and mapy = {}", mapx, mapy);
                 resultUrl = "nmap://route/public?dlat=" + mapx + "&dlng=" + mapy + "&dname=" + addr;
             }
-        } catch (UnsupportedEncodingException e) { // 에러가 발생했을 때 예외 status 명시
-            log.debug("UnKnownAddrException 발생 ");
+        } catch (UnsupportedEncodingException e) {
             throw new BaseException(ResponseStatus.UNKNOWN_ADDR);
         } catch (ProtocolException e) {
             e.printStackTrace();

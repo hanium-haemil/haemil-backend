@@ -5,7 +5,7 @@ import org.springframework.stereotype.Component;
 
 @Data
 @Component
-public class LivingInfoDto {
-  private String feels_like; // 체감 온도
-  private String uvi; // 자외선 수치
+public class TransferDto {
+  private String x;
+  private String y;
 }

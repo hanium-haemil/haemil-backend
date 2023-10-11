@@ -11,6 +11,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletRequest;
 import java.util.List;
 
 @Slf4j
@@ -23,12 +24,12 @@ public class AlertController {
     private final GetApiDto getApiDto;
 
     @PostMapping("/send")
-    public ResponseEntity<BaseResponse> sendGetRequest(@RequestBody ReqCoordDto reqCoordDto) {
+    public ResponseEntity<BaseResponse> sendGetRequest(HttpServletRequest request) {
 
         try {
             String jsonString = alertService.getAlertInfo(getApiDto);
             alertService.isJson(jsonString);
-            List<AlertDto> alertApiList = alertService.ParsingJson(jsonString, reqCoordDto);
+            List<AlertDto> alertApiList = alertService.ParsingJson(jsonString, request);
             return new BaseResponse<>(alertApiList).convert();
         } catch (BaseException e){
             // 실패시 custom한 status로 code 헤더 설정, body로 메세지 반환
