@@ -6,58 +6,48 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalTime;
 
-//schedule에서 값을 가져올 때 직접적인 entity 대신 앞에 써줌
-//클라이언트에게 응답할 때 필요한 속성들 추가
 @NoArgsConstructor
 @Getter
 @Setter
 public class ScheduleResponseDto {
 
-    private String mapUrl;
-
     private Long id;
 
     private LocalDate localDate;
-
-    private DayOfWeek dayOfWeek;
 
     private LocalTime time;
 
     private String content;
 
-    private String place;
-
     private Boolean done;
 
-    private String medicine;
+    private String place;
 
     private RepeatType repeatType;
 
+    private String mapUrl;
 
-    public ScheduleResponseDto(Schedule schedule){
-        this.mapUrl = schedule.getMapUrl();
+
+    public ScheduleResponseDto(Schedule schedule) {
 
         this.id = schedule.getId();
 
         this.localDate = schedule.getLocalDate();
 
-        this.dayOfWeek = schedule.getDayOfWeek();
-
         this.time = schedule.getTime();
 
         this.content = schedule.getContent();
 
-        this.place = schedule.getPlace();
-
         this.done = schedule.getDone();
 
-        this.medicine = schedule.getMedicine();
+        this.place = schedule.getPlace();
 
         this.repeatType = schedule.getRepeatType();
+
+        this.mapUrl = schedule.getMapUrl();
 
     }
 }

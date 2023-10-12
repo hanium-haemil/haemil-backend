@@ -3,10 +3,7 @@ package com.haemil.backend.schedule.entity;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import net.bytebuddy.asm.Advice;
-
 import javax.persistence.*;
-import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalTime;
 
@@ -24,10 +21,6 @@ public class Schedule {
     @Column(nullable = false)
     private LocalDate localDate;
 
-    //요일
-    @Column(nullable = false)
-    private DayOfWeek dayOfWeek;
-
     //일정 시간(hour, minute, second, nano)
     @Column(nullable = false)
     private LocalTime time;
@@ -44,23 +37,13 @@ public class Schedule {
     @Column(nullable = true, length = 50)
     private String place;
 
-    //약
-    @Column(nullable = true, length = 50)
-    private String medicine;
-
     //반복 routine
     @Enumerated(value = EnumType.STRING)
     @Column(nullable = false)
     private RepeatType repeatType;
 
+    //장소 url
+    @Column(nullable = true)
     private String mapUrl;
-
-    public String getMapUrl() {
-        return mapUrl;
-    }
-
-    public void setMapUrl(String mapUrl) {
-        this.mapUrl = mapUrl;
-    }
 
 }
